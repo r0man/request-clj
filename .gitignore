@@ -14,3 +14,4 @@ pom.xml
 /out
 /pom.xml.asc
 /.lein-repl-history
+/.repl
