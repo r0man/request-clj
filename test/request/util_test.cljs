@@ -6,7 +6,7 @@
 
 (deftest test-format-uri
   (are [name opts expected]
-    (is (= expected (format-uri (get routes name) {:query-params opts})))
+    (is (= expected (format-uri (get routes name) {:params opts})))
     :continents {} "/continents"
     :continent {:id 1} "/continents/1"
     :create-continent {} "/continents"
@@ -14,7 +14,7 @@
     :update-continent {:id 1} "/continents/1"))
 
 (deftest test-make-request-continent
-  (let [request (make-request routes :continent {:query-params {:id 1}})]
+  (let [request (make-request routes :continent {:params {:id 1}})]
     (is (= :get (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
@@ -38,7 +38,7 @@
     (is (= "/continents" (:uri request) ))))
 
 (deftest test-make-request-delete-continent
-  (let [request (make-request routes :delete-continent {:query-params {:id 1}})]
+  (let [request (make-request routes :delete-continent {:params {:id 1}})]
     (is (= :delete (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
@@ -46,7 +46,7 @@
     (is (= "/continents/1" (:uri request) ))))
 
 (deftest test-make-request-update-continent
-  (let [request (make-request routes :update-continent {:query-params {:id 1}})]
+  (let [request (make-request routes :update-continent {:params {:id 1}})]
     (is (= :put (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))

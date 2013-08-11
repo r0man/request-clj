@@ -3,11 +3,11 @@
   (:require [clojure.string :refer [replace]]))
 
 (defn format-uri
-  "Format the `route` url by expanding :query-params in `opts`."
+  "Format the `route` url by expanding :params in `opts`."
   [route & [opts]]
   (reduce
    (fn [uri param]
-     (let [params (:query-params opts)]
+     (let [params (:params opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
          (throw (ex-info (format "Can't expand query param %s." param) params)))))
