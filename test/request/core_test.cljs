@@ -1,7 +1,8 @@
 (ns request.core-test
   (:require [cemerick.cljs.test :as t])
   (:require-macros [cemerick.cljs.test :refer [are is deftest]]
-                   [request.core :refer [defroutes]]))
+                   [request.core :refer [defroutes]]
+                   [request.util :refer [path-for-routes url-for-routes]]))
 
 (defroutes routes
   [{:route-name :continents,
