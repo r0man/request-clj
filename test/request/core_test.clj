@@ -1,5 +1,6 @@
 (ns request.core-test
-  (:require [request.core :refer :all]))
+  (:require [clojure.test :refer :all]
+            [request.core :refer :all]))
 
 (defroutes routes
   [{:route-name :continents,
@@ -39,3 +40,25 @@
   :server-name "example.com"
   :server-port 80
   :as :auto)
+
+(deftest test-path-for
+  (are [name opts expected]
+    (is (= expected (path-for name {:params opts})))
+    :continents {} "/continents"
+    :continent {:id 1} "/continents/1"
+    :create-continent {} "/continents"
+    :delete-continent {:id 1} "/continents/1"
+    :update-continent {:id 1} "/continents/1"))
+
+(deftest test-url-for
+  (are [name opts expected]
+    (is (= expected (url-for name opts)))
+    :continents {} "http://example.com/continents"
+    :continent {:params {:id 1}} "http://example.com/continents/1"
+    :create-continent {} "http://example.com/continents"
+    :delete-continent {:params {:id 1}} "http://example.com/continents/1"
+    :update-continent {:params {:id 1}} "http://example.com/continents/1"
+    :continents {:server-port 80} "http://example.com/continents"
+    :continents {:server-port 8080} "http://example.com:8080/continents"
+    :continents {:scheme :https :server-port 443} "https://example.com/continents"
+    :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))

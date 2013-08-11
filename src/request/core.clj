@@ -1,9 +1,12 @@
 (ns request.core
-  (:require [request.platform :as platform]))
+  (:require [request.platform :as platform]
+            [request.util :as util]))
 
 (defmacro defroutes [name routes & {:as opts}]
-  `(def ~name
-     ~(zipmap (map :route-name routes)
-              (map (partial merge opts) routes))))
-
-(def request platform/request)
+  `(do (def ~name
+         ~(zipmap (map :route-name routes)
+                  (map (partial merge opts) routes)))
+       (def ~'path-for (request.util/path-for-routes ~name))
+       (def ~'url-for (request.util/url-for-routes ~name))
+       (defn ~'request [& args#]
+         (apply request.platform/request ~name args#))))

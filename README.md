@@ -8,7 +8,7 @@ Via Clojars: https://clojars.org/request-clj
 
 ## Usage
 
-    (use 'request.core)
+    (require '[request.core :refer [defroutes]])
 
     (defroutes routes
       [{:route-name :continents,
@@ -36,7 +36,14 @@ Via Clojars: https://clojars.org/request-clj
       :server-port 80
       :as :auto)
 
-    (request routes :continents)
+    (path-for :continent {:params {:id 1}})
+    ;=> "/continents/1"
+
+    (url-for :continent {:params {:id 1}})
+    ;=> "http://example.com/continents/1"
+
+    (request :continents {:params {:id 1}})
+    ;=> {:status 200 :body "..." :headers {}}
 
 ## License
 

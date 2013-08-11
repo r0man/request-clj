@@ -60,3 +60,25 @@
     (is (= (:server-name default) (:server-name request) ))
     (is (= (:server-port default) (:server-port request) ))
     (is (= "/continents" (:uri request) ))))
+
+(deftest test-path-for-routes
+  (are [name opts expected]
+    (is (= expected ((path-for-routes routes) name {:params opts})))
+    :continents {} "/continents"
+    :continent {:id 1} "/continents/1"
+    :create-continent {} "/continents"
+    :delete-continent {:id 1} "/continents/1"
+    :update-continent {:id 1} "/continents/1"))
+
+(deftest test-url-for-routes
+  (are [name opts expected]
+    (is (= expected ((url-for-routes routes) name opts)))
+    :continents {} "http://example.com/continents"
+    :continent {:params {:id 1}} "http://example.com/continents/1"
+    :create-continent {} "http://example.com/continents"
+    :delete-continent {:params {:id 1}} "http://example.com/continents/1"
+    :update-continent {:params {:id 1}} "http://example.com/continents/1"
+    :continents {:server-port 80} "http://example.com/continents"
+    :continents {:server-port 8080} "http://example.com:8080/continents"
+    :continents {:scheme :https :server-port 443} "https://example.com/continents"
+    :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))

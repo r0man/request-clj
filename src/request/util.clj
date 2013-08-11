@@ -19,3 +19,24 @@
   (when-let [route (get routes (keyword name))]
     (-> (merge route opts)
         (assoc :uri (format-uri route opts)))))
+
+(defn path-for-routes [routes]
+  (fn [name & opts]
+    (let [request (apply make-request routes name opts)]
+      (:uri request))))
+
+(defn url-for-routes [routes]
+  (fn [route-name & opts]
+    (let [{:keys [scheme server-name server-port uri]}
+          (apply make-request routes route-name opts)]
+      (str
+       (if scheme (name scheme) "http")
+       "://"
+       (if server-name server-name "localhost")
+       (if (and server-port
+                (not (and (= scheme :http)
+                          (= server-port 80)))
+                (not (and (= scheme :https)
+                          (= server-port 443))))
+         (str ":" server-port))
+       uri))))
