@@ -1,5 +1,5 @@
 (defproject request-clj "0.0.4"
-  :description "A Clojure & ClojureScript library to build url and path fns."
+  :description "A HTTP library for Clojure & ClojureScript."
   :url "http://github.com/r0man/request-clj"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
