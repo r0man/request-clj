@@ -19,9 +19,10 @@
 (defn make-request
   "Find the route `name` in `routes` and return the Ring request."
   [routes name & [opts]]
-  (when-let [route (get routes (keyword name))]
+  (if-let [route (get routes (keyword name))]
     (-> (merge route opts)
-        (assoc :uri (format-uri route opts)))))
+        (assoc :uri (format-uri route opts)))
+    (throw (ex-info (format "Can't find route %s." name) routes))))
 
 (defn path-for-routes
   "Returns a fn that generates the path of `routes`."

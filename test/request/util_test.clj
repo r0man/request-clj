@@ -12,6 +12,11 @@
     :delete-continent {:id 1} "/continents/1"
     :update-continent {:id 1} "/continents/1"))
 
+(deftest test-make-request
+  (is (thrown-with-msg?
+       clojure.lang.ExceptionInfo #"Can't find route :unknown."
+       (make-request routes :unknown))))
+
 (deftest test-make-request-continent
   (let [request (make-request routes :continent {:params {:id 1}})]
     (is (= :get (:method request) ))

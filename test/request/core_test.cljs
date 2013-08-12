@@ -1,10 +1,10 @@
 (ns request.core-test
   (:require [cemerick.cljs.test :as t]
-            [cljs.core.async :refer [<! chan close!]])
+            [cljs.core.async :refer [<! chan close!]]
+            [request.util :refer [path-for-routes url-for-routes]])
   (:require-macros [cemerick.cljs.test :refer [are is deftest]]
                    [cljs.core.async.macros :refer [go alt!]]
-                   [request.core :refer [defroutes]]
-                   [request.util :refer [path-for-routes url-for-routes]]))
+                   [request.core :refer [defroutes]]))
 
 (defroutes routes
   [{:route-name :continents,
