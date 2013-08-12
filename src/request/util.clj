@@ -10,7 +10,7 @@
   [route & [opts]]
   (reduce
    (fn [uri param]
-     (let [params (:params opts)]
+     (let [params (or (:params opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
          (throw (ex-info (format "Can't expand query param %s." param) params)))))
