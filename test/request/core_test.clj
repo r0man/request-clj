@@ -1,5 +1,6 @@
 (ns request.core-test
   (:require [clojure.test :refer :all]
+            [clojure.core.async :refer [<!! go alts!]]
             [request.core :refer :all]))
 
 (defroutes routes
@@ -62,3 +63,5 @@
     :continents {:server-port 8080} "http://example.com:8080/continents"
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
+
+(comment (<!! (request :continents)))

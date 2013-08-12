@@ -1,6 +1,8 @@
 (ns request.core-test
-  (:require [cemerick.cljs.test :as t])
+  (:require [cemerick.cljs.test :as t]
+            [cljs.core.async :refer [<! chan close!]])
   (:require-macros [cemerick.cljs.test :refer [are is deftest]]
+                   [cljs.core.async.macros :refer [go alt!]]
                    [request.core :refer [defroutes]]
                    [request.util :refer [path-for-routes url-for-routes]]))
 
@@ -63,3 +65,7 @@
     :continents {:server-port 8080} "http://example.com:8080/continents"
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
+
+(comment
+  (url-for :continents)
+  (go (prn (<! (request :continents)))))

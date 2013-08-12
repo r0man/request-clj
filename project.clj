@@ -7,7 +7,8 @@
   :dependencies [[clj-http "0.7.6"]
                  [cljs-http "0.0.5"]
                  [org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1853"]]
+                 [org.clojure/clojurescript "0.0-1853"]
+                 [org.clojure/core.async "0.1.0-SNAPSHOT"]]
   :profiles {:dev {:dependencies [[com.cemerick/clojurescript.test "0.0.4"]]
                    :plugins [[com.cemerick/austin "0.1.0"]]}}
   :plugins [[lein-cljsbuild "0.3.2"]]
@@ -31,4 +32,5 @@
               :repl-launch-commands
               {"chromium" ["chromium" "http://localhost:9000/"]
                "firefox" ["firefox" "http://http://localhost:9000/"]}
-              :test-commands {"unit-tests" ["runners/phantomjs.js" "target/request-test.js"]}})
+              :test-commands {"unit-tests" ["runners/phantomjs.js" "target/request-test.js"]}}
+  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"})
