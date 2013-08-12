@@ -2,6 +2,9 @@
   (:refer-clojure :exclude [replace])
   (:require [clojure.string :refer [replace]]))
 
+(def route-keys
+  [:method :route-name :path :path-params])
+
 (defn format-uri
   "Format the `route` url by expanding :params in `opts`."
   [route & [opts]]
@@ -20,12 +23,16 @@
     (-> (merge route opts)
         (assoc :uri (format-uri route opts)))))
 
-(defn path-for-routes [routes]
+(defn path-for-routes
+  "Returns a fn that generates the path of `routes`."
+  [routes]
   (fn [name & opts]
     (let [request (apply make-request routes name opts)]
       (:uri request))))
 
-(defn url-for-routes [routes]
+(defn url-for-routes
+  "Returns a fn that generates the url of `routes`."
+  [routes]
   (fn [route-name & opts]
     (let [{:keys [scheme server-name server-port uri]}
           (apply make-request routes route-name opts)]
@@ -40,3 +47,9 @@
                           (= server-port 443))))
          (str ":" server-port))
        uri))))
+
+(defn select-routes
+  "Select all neccesary routing keys from the `routes`."
+  [routes]
+  (->> (map #(select-keys %1 route-keys) routes)
+       (sort-by :route-name)))

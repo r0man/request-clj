@@ -82,3 +82,21 @@
     :continents {:server-port 8080} "http://example.com:8080/continents"
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
+
+(deftest test-select-routes
+  (let [routes [{:route-name :continents,
+                 :path-re "/\\Qcontinents\\E",
+                 :method :get,
+                 :path "/continents",
+                 :path-parts ["" "continents"],
+                 :path-params []}
+                {:route-name :continent,
+                 :path-re "/\\Qcontinents\\E/([^/]+)",
+                 :method :get,
+                 :path-constraints {:id "([^/]+)"},
+                 :path "/continents/:id",
+                 :path-parts ["" "continents" :id],
+                 :path-params [:id]}]]
+    (is (= [{:path-params [:id], :path "/continents/:id", :route-name :continent, :method :get}
+            {:path-params [], :path "/continents", :route-name :continents, :method :get}]
+           (select-routes routes)))))
