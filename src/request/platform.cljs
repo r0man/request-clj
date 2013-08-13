@@ -15,8 +15,5 @@
     (client/on-error response enqueue)
     channel))
 
-(defn http<! [routes name & opts]
-  (<! (apply http routes name opts)))
-
 (defn http<<! [routes name & opts]
   (throw js/Error "Not implemented."))

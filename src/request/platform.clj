@@ -12,8 +12,5 @@
         (close! channel))
     channel))
 
-(defn http<! [routes name & opts]
-  (<! (apply http routes name opts)))
-
 (defn http<!! [routes name & opts]
   (<! (apply http routes name opts)))
