@@ -9,6 +9,4 @@
        (def ~'path-for (request.util/path-for-routes ~name))
        (def ~'url-for (request.util/url-for-routes ~name))
        (defn ~'http [& args#]
-         (apply request.platform/http ~name args#))
-       (defn ~'http<!! [& args#]
-         (apply request.platform/http<!! ~name args#))))
+         (apply request.platform/http ~name args#))))

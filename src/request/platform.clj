@@ -27,13 +27,6 @@
 (def client (wrap-pagination http/request))
 
 (defn http [routes name & opts]
-  (let [channel (chan 1)]
-    (go (->> (apply make-request routes name opts)
-             (client)
-             (unpack-response)
-             (>! channel))
-        (close! channel))
-    channel))
-
-(defn http<!! [routes name & opts]
-  (<!! (apply http routes name opts)))
+  (->> (apply make-request routes name opts)
+       (client)
+       (unpack-response)))
