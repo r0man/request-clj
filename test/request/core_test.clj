@@ -64,4 +64,4 @@
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
 
-;; (comment (<!! (request :continents)))
+(comment (http<!! :continents))
