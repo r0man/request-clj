@@ -54,3 +54,10 @@
   [routes]
   (->> (map #(select-keys %1 route-keys) routes)
        (sort-by :route-name)))
+
+(defn unpack-response [response]
+  (let [body (:body response)]
+    (if (or (map? body)
+            (sequential? body))
+      (with-meta body (dissoc response :body))
+      body)))

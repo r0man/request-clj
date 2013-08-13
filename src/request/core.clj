@@ -8,5 +8,9 @@
                   (map (partial merge opts) routes)))
        (def ~'path-for (request.util/path-for-routes ~name))
        (def ~'url-for (request.util/url-for-routes ~name))
-       (defn ~'request [& args#]
-         (apply request.platform/request ~name args#))))
+       (defn ~'http [& args#]
+         (apply request.platform/http ~name args#))
+       (defn ~'http<! [& args#]
+         (apply request.platform/http<! ~name args#))
+       (defn ~'http<!! [& args#]
+         (apply request.platform/http<!! ~name args#))))
