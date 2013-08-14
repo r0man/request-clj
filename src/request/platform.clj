@@ -24,7 +24,7 @@
         (http/with-connection-pool {}
           (paginate request 1 (or per-page 100)))))))
 
-(def client (wrap-pagination http/request))
+(def client (wrap-pagination #'http/request))
 
 (defn http [routes name & opts]
   (->> (apply make-request routes name opts)
