@@ -42,7 +42,7 @@ Via Clojars: https://clojars.org/request-clj
     (url-for :continent {:params {:id 1}})
     ;=> "http://example.com/continents/1"
 
-    (request :continents {:params {:id 1}})
+    (http :continents {:params {:id 1}})
     ;=> {:status 200 :body "..." :headers {}}
 
 ## License
