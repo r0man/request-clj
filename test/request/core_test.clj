@@ -39,6 +39,7 @@
     :path-params [:id]}]
   :scheme :http
   :server-name "example.com"
+  ;; :server-name "api.burningswell.dev"
   :server-port 80
   :as :auto)
 
@@ -64,4 +65,8 @@
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
 
-(comment (http<!! :continents))
+(comment
+  (http<! :continents)
+  (body :continents)
+  (<!! (body<! :continents))
+  (<!! (http<! :continents)))
