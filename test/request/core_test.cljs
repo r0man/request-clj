@@ -40,9 +40,9 @@
     :path "/continents/:id",
     :path-parts ["" "continents" :id],
     :path-params [:id]}]
-  :scheme :http
-  :server-name "example.com"
-  :server-port 80)
+  {:scheme :http
+   :server-name "example.com"
+   :server-port 80})
 
 (deftest test-path-for
   (are [name opts expected]

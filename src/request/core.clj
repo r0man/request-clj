@@ -2,7 +2,7 @@
   (:require [request.platform :as platform]
             [request.util :as util]))
 
-(defmacro defroutes [name routes & {:as opts}]
+(defmacro defroutes [name routes & [opts]]
   `(do (def ~name
          ~(zipmap (map :route-name routes)
                   (map (partial merge opts) routes)))
