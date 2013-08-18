@@ -4,8 +4,10 @@
 
 (defmacro defroutes [name routes & [opts]]
   `(do (def ~name
-         ~(zipmap (map :route-name routes)
-                  (map (partial merge opts) routes)))
+         (let [routes# ~routes
+               opts# ~opts]
+           (zipmap (map :route-name routes#)
+                   (map (partial merge opts#) routes#))))
        (def ~'path-for (request.util/path-for-routes ~name))
        (def ~'url-for (request.util/url-for-routes ~name))
        (defn ~'body [& args#]
