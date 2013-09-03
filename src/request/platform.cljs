@@ -1,8 +1,13 @@
 (ns request.platform
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [cljs-http.client :as client]
+            [cljs-http.client :refer [generate-query-string]]
             [cljs.core.async :refer [<! chan close! put!]]
             [request.util :refer [make-request unpack-response]]))
+
+(defn query-string
+  "Generate a url encoded query string from `m`."
+  [m] (generate-query-string m))
 
 (defn http
   "Make a HTTP request and return the response."
