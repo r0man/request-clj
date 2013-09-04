@@ -5,10 +5,6 @@
             [request.util :refer [make-request unpack-response]]
             [slingshot.slingshot :refer [try+]]))
 
-(defn query-string
-  "Generate a url encoded query string from `m`."
-  [m] (generate-query-string m))
-
 (defn wrap-pagination [client & [per-page]]
   (letfn [(paginate [request & [page per-page]]
             (update-in

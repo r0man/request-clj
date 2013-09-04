@@ -45,7 +45,7 @@
 
 (deftest test-path-for
   (are [name opts expected]
-    (is (= expected (path-for name {:params opts})))
+    (is (= expected (path-for name {:path-params opts})))
     :continents {} "/continents"
     :continent {:id 1} "/continents/1"
     :create-continent {} "/continents"
@@ -56,10 +56,10 @@
   (are [name opts expected]
     (is (= expected (url-for name opts)))
     :continents {} "http://example.com/continents"
-    :continent {:params {:id 1}} "http://example.com/continents/1"
+    :continent {:path-params {:id 1}} "http://example.com/continents/1"
     :create-continent {} "http://example.com/continents"
-    :delete-continent {:params {:id 1}} "http://example.com/continents/1"
-    :update-continent {:params {:id 1}} "http://example.com/continents/1"
+    :delete-continent {:path-params {:id 1}} "http://example.com/continents/1"
+    :update-continent {:path-params {:id 1}} "http://example.com/continents/1"
     :continents {:server-port 80} "http://example.com/continents"
     :continents {:server-port 8080} "http://example.com:8080/continents"
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
