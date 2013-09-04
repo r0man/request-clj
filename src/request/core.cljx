@@ -30,7 +30,11 @@
   [routes name & [opts]]
   (if-let [route (get routes (keyword name))]
     (-> (merge route opts)
-        (assoc :uri (expand-path route opts)))
+        (assoc :uri (expand-path route opts)
+               :body (case (:method route)
+                       :post (or (:body opts) opts)
+                       :put (or (:body opts) opts)
+                       (:body opts))))
     (throw (ex-info (format "Can't find route %s." name) routes))))
 
 (defn path-for-routes

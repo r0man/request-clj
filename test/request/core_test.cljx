@@ -55,11 +55,6 @@
     :delete-continent {:id 1} "/continents/1"
     :update-continent {:id 1} "/continents/1"))
 
-;; (deftest test-make-request
-;;   (is (thrown-with-msg?
-;;        clojure.lang.ExceptionInfo #"Can't find route :unknown."
-;;        (make-request routes :unknown))))
-
 (deftest test-make-request-continent
   (let [request (c/make-request routes :continent {:path-params {:id 1}})]
     (is (= :get (:method request) ))
@@ -77,7 +72,8 @@
     (is (= "/continents" (:uri request) ))))
 
 (deftest test-make-request-create-continent
-  (let [request (c/make-request routes :create-continent)]
+  (let [request (c/make-request routes :create-continent {:id 1 :name "Europe"})]
+    (is (= {:id 1 :name "Europe"} (:body request)))
     (is (= :post (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
@@ -93,7 +89,8 @@
     (is (= "/continents/1" (:uri request) ))))
 
 (deftest test-make-request-update-continent
-  (let [request (c/make-request routes :update-continent {:path-params {:id 1}})]
+  (let [request (c/make-request routes :update-continent {:id 1 :name "Europe"})]
+    (is (= {:id 1 :name "Europe"} (:body request)))
     (is (= :put (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
