@@ -36,13 +36,13 @@ Via Clojars: https://clojars.org/request-clj
       :server-port 80
       :as :auto)
 
-    (path-for :continent {:params {:id 1}})
+    (path-for :continent {:id 1})
     ;=> "/continents/1"
 
-    (url-for :continent {:params {:id 1}})
+    (url-for :continent {:id 1})
     ;=> "http://example.com/continents/1"
 
-    (http :continents {:params {:id 1}})
+    (http :continents {:id 1})
     ;=> {:status 200 :body "..." :headers {}}
 
 ## License
