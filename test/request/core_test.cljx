@@ -155,9 +155,42 @@
             :path-parts ["" "continents" :id],
             :path-params [:id]}]))))
 
+#+clj
+(deftest test-body
+  (with-redefs
+    [c/client
+     (fn [request]
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= {:query "Europe"} (:query-params request)))
+       {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
+    (let [response (body :continents {:query-params {:query "Europe"}})]
+      (is (= [{:id 1 :name "Europe"}] response))
+      (is (= {:status 200 :headers {"Content-Type" "application/edn"}}
+             (meta response))))))
+
+#+clj
+(deftest test-http
+  (with-redefs
+    [c/client
+     (fn [request]
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= {:query "Europe"} (:query-params request)))
+       {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
+    (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
+           (http :continents {:query-params {:query "Europe"}})))))
+
 (comment
   (request :continents)
   (http<! :continents)
+  (body :continents {:server-name "api.burningswell.dev"})
   (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
   (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
   (request :delete-continent {:id 1})

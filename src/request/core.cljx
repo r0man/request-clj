@@ -94,16 +94,16 @@
 
 (defn http
   "Make a HTTP request and return the response."
-  [routes name & opts]
-  #+clj (client (apply make-request routes name opts))
+  [routes name & [opts]]
+  #+clj (client (make-request routes name opts))
   #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
 
 (defn http<!
   "Make a HTTP request and return a core.async channel."
-  [routes name & opts]
+  [routes name & [opts]]
   #+clj
   (let [channel (chan)]
-    (go (try+ (->> (apply make-request routes name opts)
+    (go (try+ (->> (make-request routes name opts)
                    (client)
                    (>! channel))
               (catch map? response
@@ -117,15 +117,15 @@
 
 (defn body
   "Make a HTTP request and return the body of response."
-  [routes name & opts]
-  #+clj (unpack-response (apply http routes name opts))
+  [routes name & [opts]]
+  #+clj (unpack-response (http routes name opts))
   #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
 
 (defn body<!
   "Make a HTTP request and return the body in a core.async channel."
-  [routes name & opts]
+  [routes name & [opts]]
   (let [channel (chan)]
-    (go (let [response (<! (apply http<! routes name opts))]
+    (go (let [response (<! (http<! routes name opts))]
           (put! channel (unpack-response response))
           (close! channel)))
     channel))
@@ -138,13 +138,13 @@
                    (map (partial merge opts#) routes#))))
        (def ~'path-for (request.core/path-for-routes ~name))
        (def ~'url-for (request.core/url-for-routes ~name))
-       (defn ~'body [& args#]
-         (apply request.core/body ~name args#))
-       (defn ~'body<! [& args#]
-         (apply request.core/body<! ~name args#))
-       (defn ~'http [& args#]
-         (apply request.core/http ~name args#))
-       (defn ~'http<! [& args#]
-         (apply request.core/http<! ~name args#))
-       (defn ~'request [& args#]
-         (apply request.core/make-request ~name args#))))
+       (defn ~'body [~'route & [~'opts]]
+         (request.core/body ~name ~'route ~'opts))
+       (defn ~'body<! [~'route & [~'opts]]
+         (request.core/body<! ~name ~'route ~'opts))
+       (defn ~'http [~'route & [~'opts]]
+         (request.core/http ~name ~'route ~'opts))
+       (defn ~'http<! [~'route & [~'opts]]
+         (request.core/http<! ~name ~'route ~'opts))
+       (defn ~'request [~'route & [~'opts]]
+         (request.core/make-request ~name ~'route ~'opts))))
