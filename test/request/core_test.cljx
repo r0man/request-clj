@@ -116,7 +116,9 @@
     :continent {:path-params {:id 1} :query-params {:a 1}} "/continents/1?a=1"
     :create-continent {} "/continents"
     :delete-continent {:id 1} "/continents/1"
-    :update-continent {:id 1} "/continents/1"))
+    :delete-continent {:path-params {:id 1}} "/continents/1"
+    :update-continent {:id 1} "/continents/1"
+    :update-continent {:path-params {:id 1}} "/continents/1"))
 
 (deftest test-url-for-routes
   (are [name opts expected]
@@ -126,7 +128,9 @@
     :continent {:path-params {:id 1}} "http://example.com/continents/1"
     :continent {:path-params {:id 1} :query-params {:a 1}} "http://example.com/continents/1?a=1"
     :create-continent {} "http://example.com/continents"
+    :delete-continent {:id 1} "http://example.com/continents/1"
     :delete-continent {:path-params {:id 1}} "http://example.com/continents/1"
+    :update-continent {:id 1} "http://example.com/continents/1"
     :update-continent {:path-params {:id 1}} "http://example.com/continents/1"
     :continents {:server-port 80} "http://example.com/continents"
     :continents {:server-port 8080} "http://example.com:8080/continents"
@@ -154,6 +158,8 @@
 (comment
   (request :continents)
   (http<! :continents)
-  (body :continents {:server-name "api.burningswell.dev"})
+  (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
+  (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
+  (request :delete-continent {:id 1})
   (<!! (body<! :continents {:server-name "api.burningswell.dev"}))
   (<!! (http<! :continents {:server-name "api.burningswell.dev"})))
