@@ -20,7 +20,7 @@
      (let [params (or (:path-params opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
-         (throw (ex-info (format "Can't expand query param %s." param) params
+         (throw (ex-info (format "Can't expand query param %s." param)
                          {:path (:path route)
                           :params params})))))
    (:path route) (:path-params route)))
