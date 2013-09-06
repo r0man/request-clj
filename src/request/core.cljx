@@ -113,7 +113,7 @@
               (finally (close! channel))))
     channel)
   #+cljs
-  (client/request (apply make-request routes name opts)))
+  (client (make-request routes name opts)))
 
 (defn body
   "Make a HTTP request and return the body of response."
