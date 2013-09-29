@@ -20,7 +20,7 @@
      (let [params (or (:path-params opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
-         (throw (ex-info (format "Can't expand query param %s." param)
+         (throw (ex-info (str "Can't expand query param: " param)
                          {:path (:path route)
                           :params params})))))
    (:path route) (:path-params route)))
@@ -35,7 +35,7 @@
                        :post (or (:body opts) opts)
                        :put (or (:body opts) opts)
                        (:body opts))))
-    (throw (ex-info (format "Can't find route %s." name) routes))))
+    (throw (ex-info (str "Can't find route: " name) routes))))
 
 (defn path-for-routes
   "Returns a fn that generates the path of `routes`."
