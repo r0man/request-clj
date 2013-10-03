@@ -6,16 +6,16 @@
   :min-lein-version "2.0.0"
   :lein-release {:deploy-via :clojars}
   :dependencies [[clj-http "0.7.7"]
-                 [cljs-http "0.0.8"]
+                 [cljs-http "0.1.0"]
                  [org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1859"]
+                 [org.clojure/clojurescript "0.0-1853"]
                  [org.clojure/core.async "0.1.0-SNAPSHOT"]]
   :profiles {:dev {:dependencies [[com.cemerick/clojurescript.test "0.0.4"]
                                   [com.keminglabs/cljx "0.3.0"]]
                    :plugins [[com.cemerick/austin "0.1.1"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}}}
   :plugins [[com.keminglabs/cljx "0.3.0"]
-            [lein-cljsbuild "0.3.2"]]
+            [lein-cljsbuild "0.3.3"]]
   :hooks [cljx.hooks leiningen.cljsbuild]
   :cljx {:builds [{:source-paths ["src"]
                    :output-path "target/classes"
