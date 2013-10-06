@@ -1,7 +1,8 @@
 (ns request.core-test
   #+cljs (:require-macros [cemerick.cljs.test :refer [deftest is are]]
                           [request.core :refer [defroutes]])
-  (:require [request.core :as c :refer [defroutes]]
+  (:require [request.core :as c]
+            #+clj [request.core :refer [defroutes]]
             #+clj [clojure.test :refer :all]
             #+clj [clojure.core.async :refer [<!! go alts!]]
             #+cljs [cemerick.cljs.test :as t]))
