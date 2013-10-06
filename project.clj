@@ -1,4 +1,4 @@
-(defproject request-clj "0.1.7"
+(defproject request-clj "0.1.8-SNAPSHOT"
   :description "A HTTP library for Clojure & ClojureScript."
   :url "http://github.com/r0man/request-clj"
   :license {:name "Eclipse Public License"
