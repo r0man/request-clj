@@ -64,6 +64,15 @@
       (with-meta body (dissoc response :body))
       body)))
 
+(defn wrap-edn-body [client]
+  (fn [request]
+    (if (:edn-body request)
+      (-> (dissoc request :edn-body)
+          (assoc :body (pr-str (:edn-body request)))
+          (assoc-in [:headers "Content-Type"] "application/edn")
+          (client))
+      (client request))))
+
 #+clj
 (defn wrap-pagination [client & [per-page]]
   (letfn [(paginate [request & [page per-page]]
@@ -89,8 +98,13 @@
 ;; PLATFORM
 
 (def client
-  #+clj (wrap-pagination #'clj-http/request)
-  #+cljs cljs-http/request)
+  #+clj
+  (->  #'clj-http/request
+       (wrap-edn-body)
+       (wrap-pagination))
+  #+cljs
+  (->  cljs-http/request
+       (wrap-edn-body)))
 
 (defn http
   "Make a HTTP request and return the response."

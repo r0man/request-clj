@@ -8,9 +8,9 @@
   :dependencies [[clj-http "0.7.7" :exclusions [org.clojure/tools.reader]]
                  [cljs-http "0.1.1"]
                  [org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-1934"]
+                 [org.clojure/clojurescript "0.0-2030"]
                  [org.clojure/core.async "0.1.0-SNAPSHOT"]]
-  :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.0"]]
+  :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.1"]]
                    :plugins [[com.cemerick/austin "0.1.1"]
                              [com.cemerick/clojurescript.test "0.1.0"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}}}
