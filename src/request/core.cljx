@@ -17,7 +17,7 @@
   [route & [opts]]
   (reduce
    (fn [uri param]
-     (let [params (or (:path-params opts) opts)]
+     (let [params (or (:path-params opts) (:edn-body opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
          (throw (ex-info (str "Can't expand query param: " param)
@@ -29,12 +29,8 @@
   "Find the route `name` in `routes` and return the Ring request."
   [routes name & [opts]]
   (if-let [route (get routes (keyword name))]
-    (-> (merge route opts)
-        (assoc :uri (expand-path route opts)
-               :body (case (:method route)
-                       :post (or (:body opts) opts)
-                       :put (or (:body opts) opts)
-                       (:body opts))))
+    (assoc (merge route opts)
+      :uri (expand-path route opts))
     (throw (ex-info (str "Can't find route: " name) routes))))
 
 (defn path-for-routes
@@ -109,8 +105,22 @@
 (defn http
   "Make a HTTP request and return the response."
   [routes name & [opts]]
-  #+clj (client (make-request routes name opts))
-  #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
+  #+clj
+  (-> (make-request routes name opts)
+      (assoc :throw-exceptions false)
+      (client))
+  #+cljs
+  (throw js/Error "Not implemented on JavaScript runtime."))
+
+(defn http!
+  "Make a HTTP request and return the response."
+  [routes name & [opts]]
+  #+clj
+  (-> (make-request routes name opts)
+      (assoc :throw-exceptions true)
+      (client))
+  #+cljs
+  (throw js/Error "Not implemented on JavaScript runtime."))
 
 (defn http<!
   "Make a HTTP request and return a core.async channel."
@@ -158,6 +168,8 @@
          (request.core/body<! ~name ~'route ~'opts))
        (defn ~'http [~'route & [~'opts]]
          (request.core/http ~name ~'route ~'opts))
+       (defn ~'http! [~'route & [~'opts]]
+         (request.core/http! ~name ~'route ~'opts))
        (defn ~'http<! [~'route & [~'opts]]
          (request.core/http<! ~name ~'route ~'opts))
        (defn ~'request [~'route & [~'opts]]

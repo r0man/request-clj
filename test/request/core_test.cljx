@@ -74,8 +74,8 @@
     (is (= "/continents" (:uri request) ))))
 
 (deftest test-make-request-create-continent
-  (let [request (c/make-request routes :create-continent {:id 1 :name "Europe"})]
-    (is (= {:id 1 :name "Europe"} (:body request)))
+  (let [request (c/make-request routes :create-continent {:edn-body {:id 1 :name "Europe"}})]
+    (is (= {:id 1 :name "Europe"} (:edn-body request)))
     (is (= :post (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
@@ -91,8 +91,8 @@
     (is (= "/continents/1" (:uri request) ))))
 
 (deftest test-make-request-update-continent
-  (let [request (c/make-request routes :update-continent {:id 1 :name "Europe"})]
-    (is (= {:id 1 :name "Europe"} (:body request)))
+  (let [request (c/make-request routes :update-continent {:edn-body {:id 1 :name "Europe"}})]
+    (is (= {:id 1 :name "Europe"} (:edn-body request)))
     (is (= :put (:method request) ))
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
@@ -183,6 +183,7 @@
   (with-redefs
     [clj-http/request
      (fn [request]
+       (is (= false (:throw-exceptions request)))
        (is (= :http (:scheme request)))
        (is (= "example.com" (:server-name request)))
        (is (= 80 (:server-port request)))
@@ -195,6 +196,7 @@
   (with-redefs
     [clj-http/request
      (fn [request]
+       (is (= false (:throw-exceptions request)))
        (is (= :http (:scheme request)))
        (is (= "example.com" (:server-name request)))
        (is (= 80 (:server-port request)))
@@ -205,8 +207,40 @@
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
            (http :create-continent {:as :auto :edn-body {:name "Europe"}})))))
 
+#+clj
+(deftest test-http!
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= true (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= {:query "Europe"} (:query-params request)))
+       {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
+    (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
+           (http! :continents {:query-params {:query "Europe"}}))))
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= true (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :post (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= "{:name \"Europe\"}" (:body request)))
+       {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
+    (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
+           (http! :create-continent {:as :auto :edn-body {:name "Europe"}})))))
+
 (comment
   (request :continents)
+  (http :continents)
+  (http :continent {:path-params {:id -1}})
+  (http! :continent {:path-params {:id -1}})
   (http<! :continents)
   (body :continents {:server-name "api.burningswell.dev"})
   (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
