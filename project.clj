@@ -11,11 +11,11 @@
                  [org.clojure/clojurescript "0.0-2030"]
                  [org.clojure/core.async "0.1.0-SNAPSHOT"]]
   :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.1"]]
-                   :plugins [[com.cemerick/austin "0.1.1"]
-                             [com.cemerick/clojurescript.test "0.1.0"]]
+                   :plugins [[com.cemerick/austin "0.1.3"]
+                             [com.cemerick/clojurescript.test "0.2.1"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}}}
-  :plugins [[com.keminglabs/cljx "0.3.0"]
-            [lein-cljsbuild "0.3.3"]]
+  :plugins [[com.keminglabs/cljx "0.3.1"]
+            [lein-cljsbuild "1.0.0-alpha2"]]
   :hooks [cljx.hooks leiningen.cljsbuild]
   :cljx {:builds [{:source-paths ["src"]
                    :output-path "target/classes"
