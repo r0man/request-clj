@@ -263,8 +263,8 @@
       (is (= [] (:path-params route)))
       (is (= ["" "spots"] (:path-parts route))))))
 
-(deftest test-match-path
-  (let [route (c/match-path routes "/continents/1")]
+(deftest test-path-matches
+  (let [route (c/path-matches routes "/continents/1")]
     (is (= :continent (:route-name route)))
     (is (= "/continents/:id" (:path route)))
     (is (= {:id "1"} (:path-params route)))))

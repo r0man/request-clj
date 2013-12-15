@@ -199,7 +199,7 @@
        (defn ~'request [~'route & [~'opts]]
          (request.core/make-request ~name ~'route ~'opts))))
 
-(defn match-path
+(defn path-matches
   [routes path & [method]]
   (let [method (or method :get)]
     (->> (vals routes)
@@ -207,8 +207,7 @@
          (map (fn [route]
                 (if-let [matches (re-matches (:path-re route) path)]
                   (assoc route :path-params (zipmap (:path-params route) (rest matches))))))
-         (remove nil?)
-         (first))))
+         (remove nil?))))
 
 (comment
   (require '[clojure.pprint :refer [pprint]])
