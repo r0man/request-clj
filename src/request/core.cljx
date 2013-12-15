@@ -199,8 +199,20 @@
        (defn ~'request [~'route & [~'opts]]
          (request.core/make-request ~name ~'route ~'opts))))
 
+(defn match-path
+  [routes path & [method]]
+  (let [method (or method :get)]
+    (->> (vals routes)
+         (filter #(= method (:method %1)))
+         (map (fn [route]
+                (if-let [matches (re-matches (:path-re route) path)]
+                  (assoc route :path-params (zipmap (:path-params route) (rest matches))))))
+         (remove nil?)
+         (first))))
+
 (comment
-  ((url-for-routes (read-routes "test-resources/routes.edn")) :spots)
+  (require '[clojure.pprint :refer [pprint]])
+  (def r (read-routes "test-resources/routes.edn"))
   (clojure.pprint/pprint (read-routes "test-resources/routes.edn"))
   (first (:spots (read-routes "test-resources/routes.edn")))
   (first (fetch-routes "http://api.burningswell.dev/routes")))

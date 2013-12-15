@@ -11,33 +11,33 @@
 
 (defroutes routes
   [{:route-name :continents,
-    :path-re "/\\Qcontinents\\E",
+    :path-re #"/continents",
     :method :get,
     :path "/continents",
     :path-parts ["" "continents"],
     :path-params []}
    {:route-name :continent,
-    :path-re "/\\Qcontinents\\E/([^/]+)",
+    :path-re #"/continents/([^/]+)",
     :method :get,
     :path-constraints {:id "([^/]+)"},
     :path "/continents/:id",
     :path-parts ["" "continents" :id],
     :path-params [:id]}
    {:route-name :create-continent,
-    :path-re "/\\Qcontinents\\E",
+    :path-re #"/continents",
     :method :post,
     :path "/continents",
     :path-parts ["" "continents"],
     :path-params []}
    {:route-name :delete-continent,
-    :path-re "/\\Qcontinents\\E/([^/]+)",
+    :path-re #"/continents/([^/]+)",
     :method :delete,
     :path-constraints {:id "([^/]+)"},
     :path "/continents/:id",
     :path-parts ["" "continents" :id],
     :path-params [:id]}
    {:route-name :update-continent,
-    :path-re "/\\Qcontinents\\E/([^/]+)",
+    :path-re #"/continents/([^/]+)",
     :method :put,
     :path-constraints {:id "([^/]+)"},
     :path "/continents/:id",
@@ -145,13 +145,13 @@
           {:path-params [], :path "/continents", :route-name :continents, :method :get}]
          (c/select-routes
           [{:route-name :continents,
-            :path-re "/\\Qcontinents\\E",
+            :path-re #"/continents",
             :method :get,
             :path "/continents",
             :path-parts ["" "continents"],
             :path-params []}
            {:route-name :continent,
-            :path-re "/\\Qcontinents\\E/([^/]+)",
+            :path-re #"/continents/([^/]+)",
             :method :get,
             :path-constraints {:id "([^/]+)"},
             :path "/continents/:id",
@@ -262,6 +262,12 @@
       (is (= "/spots" (:path route)))
       (is (= [] (:path-params route)))
       (is (= ["" "spots"] (:path-parts route))))))
+
+(deftest test-match-path
+  (let [route (c/match-path routes "/continents/1")]
+    (is (= :continent (:route-name route)))
+    (is (= "/continents/:id" (:path route)))
+    (is (= {:id "1"} (:path-params route)))))
 
 (comment
   (request :continents)
