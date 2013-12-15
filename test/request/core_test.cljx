@@ -2,6 +2,7 @@
   #+cljs (:require-macros [cemerick.cljs.test :refer [deftest is are]]
                           [request.core :refer [defroutes]])
   (:require [request.core :as c]
+            #+clj [clojure.edn :as edn]
             #+clj [request.core :refer [defroutes]]
             #+clj [clojure.test :refer :all]
             #+clj [clojure.core.async :refer [<!! go alts!]]
@@ -235,6 +236,32 @@
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
            (http! :create-continent {:as :auto :edn-body {:name "Europe"}})))))
+
+#+clj
+(deftest test-fetch-routes
+  (with-redefs [c/client (fn [request]
+                           (is (= :get (:method request)))
+                           (is (= "http://example.com" (:url request)))
+                           {:body (edn/read-string (slurp "test-resources/routes.edn"))})]
+    (let [routes (c/fetch-routes "http://example.com")]
+      (is (not (empty? routes)))
+      (let [route (:spots routes)]
+        (is (= :spots (:route-name route)))
+        (is (= :get (:method route)))
+        (is (= "/spots" (:path route)))
+        (is (= [] (:path-params route)))
+        (is (= ["" "spots"] (:path-parts route)))))))
+
+#+clj
+(deftest test-read-routes
+  (let [routes (c/read-routes "test-resources/routes.edn")]
+    (is (not (empty? routes)))
+    (let [route (:spots routes)]
+      (is (= :spots (:route-name route)))
+      (is (= :get (:method route)))
+      (is (= "/spots" (:path route)))
+      (is (= [] (:path-params route)))
+      (is (= ["" "spots"] (:path-parts route))))))
 
 (comment
   (request :continents)

@@ -3,6 +3,7 @@
   #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.string :refer [blank? replace]]
             [no.en.core :refer [format-query-params format-url]]
+            #+clj [clojure.edn :as edn]
             #+clj [clojure.core.async :refer [<! chan close! go put!]]
             #+clj [slingshot.slingshot :refer [try+]]
             #+clj [clj-http.client :as clj-http]
@@ -29,7 +30,7 @@
   "Find the route `name` in `routes` and return the Ring request."
   [routes name & [opts]]
   (if-let [route (get routes (keyword name))]
-    (assoc (merge route opts)
+    (assoc (merge {:scheme :http :server-name "localhost"} route opts)
       :uri (expand-path route opts))
     (throw (ex-info (str "Can't find route: " name) routes))))
 
@@ -154,6 +155,29 @@
           (close! channel)))
     channel))
 
+(defn- update-path-re [route]
+  (update-in route [:path-re] #(if %1 (re-pattern %1))))
+
+(defn- zip-routes [routes & [opts]]
+  (zipmap (map :route-name routes)
+          (map #(merge opts %1) routes)))
+
+#+clj
+(defn fetch-routes
+  "Fetch the route specification from `url`."
+  [url]
+  (->> (:body (client {:method :get :url url :as :auto}))
+       (map update-path-re)
+       (zip-routes)))
+
+#+clj
+(defn read-routes
+  "Read the route specification from `filename`."
+  [filename]
+  (->> (edn/read-string (slurp filename))
+       (map update-path-re)
+       (zip-routes)))
+
 (defmacro defroutes [name routes & [opts]]
   `(do (def ~name
          (let [routes# ~routes
@@ -174,3 +198,9 @@
          (request.core/http<! ~name ~'route ~'opts))
        (defn ~'request [~'route & [~'opts]]
          (request.core/make-request ~name ~'route ~'opts))))
+
+(comment
+  ((url-for-routes (read-routes "test-resources/routes.edn")) :spots)
+  (clojure.pprint/pprint (read-routes "test-resources/routes.edn"))
+  (first (:spots (read-routes "test-resources/routes.edn")))
+  (first (fetch-routes "http://api.burningswell.dev/routes")))
