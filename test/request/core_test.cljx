@@ -143,20 +143,21 @@
 (deftest test-select-routes
   (is (= [{:path-params [:id], :path "/continents/:id", :route-name :continent, :method :get}
           {:path-params [], :path "/continents", :route-name :continents, :method :get}]
-         (c/select-routes
-          [{:route-name :continents,
-            :path-re #"/continents",
-            :method :get,
-            :path "/continents",
-            :path-parts ["" "continents"],
-            :path-params []}
-           {:route-name :continent,
-            :path-re #"/continents/([^/]+)",
-            :method :get,
-            :path-constraints {:id "([^/]+)"},
-            :path "/continents/:id",
-            :path-parts ["" "continents" :id],
-            :path-params [:id]}]))))
+         (map #(dissoc %1 :path-re)
+              (c/select-routes
+               [{:route-name :continents,
+                 :path-re #"/continents",
+                 :method :get,
+                 :path "/continents",
+                 :path-parts ["" "continents"],
+                 :path-params []}
+                {:route-name :continent,
+                 :path-re #"/continents/([^/]+)",
+                 :method :get,
+                 :path-constraints {:id "([^/]+)"},
+                 :path "/continents/:id",
+                 :path-parts ["" "continents" :id],
+                 :path-params [:id]}])))))
 
 (deftest test-wrap-edn-body
   (is (= {:headers {"Content-Type" "application/edn"}, :body "{:a 1, :b 2}"}
@@ -264,7 +265,7 @@
       (is (= ["" "spots"] (:path-parts route))))))
 
 (deftest test-path-matches
-  (let [route (c/path-matches routes "/continents/1")]
+  (let [route (first (c/path-matches routes "/continents/1"))]
     (is (= :continent (:route-name route)))
     (is (= "/continents/:id" (:path route)))
     (is (= {:id "1"} (:path-params route)))))

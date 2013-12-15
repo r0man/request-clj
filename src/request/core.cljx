@@ -11,7 +11,7 @@
             #+cljs [cljs.core.async :refer [<! chan close! put!]]))
 
 (def route-keys
-  [:method :route-name :path :path-params])
+  [:method :route-name :path :path-params :path-re])
 
 (defn expand-path
   "Format the `route` url by expanding :path-params in `opts`."
@@ -33,6 +33,18 @@
     (assoc (merge {:scheme :http :server-name "localhost"} route opts)
       :uri (expand-path route opts))
     (throw (ex-info (str "Can't find route: " name) routes))))
+
+(defn- match-path [path route]
+  (if-let [matches (re-matches (:path-re route) path)]
+    (assoc route :path-params (zipmap (:path-params route) (rest matches)))))
+
+(defn path-matches
+  [routes path & [method]]
+  (let [method (or method :get)]
+    (->> (vals routes)
+         (filter #(= method (:method %1)))
+         (map (partial match-path path))
+         (remove nil?))))
 
 (defn path-for-routes
   "Returns a fn that generates the path of `routes`."
@@ -198,16 +210,6 @@
          (request.core/http<! ~name ~'route ~'opts))
        (defn ~'request [~'route & [~'opts]]
          (request.core/make-request ~name ~'route ~'opts))))
-
-(defn path-matches
-  [routes path & [method]]
-  (let [method (or method :get)]
-    (->> (vals routes)
-         (filter #(= method (:method %1)))
-         (map (fn [route]
-                (if-let [matches (re-matches (:path-re route) path)]
-                  (assoc route :path-params (zipmap (:path-params route) (rest matches))))))
-         (remove nil?))))
 
 (comment
   (require '[clojure.pprint :refer [pprint]])
