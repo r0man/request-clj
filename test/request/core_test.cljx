@@ -140,25 +140,6 @@
     :continents {:scheme :https :server-port 443} "https://example.com/continents"
     :continents {:scheme :https :server-port 8080} "https://example.com:8080/continents"))
 
-(deftest test-select-routes
-  (is (= [{:path-params [:id], :path "/continents/:id", :route-name :continent, :method :get}
-          {:path-params [], :path "/continents", :route-name :continents, :method :get}]
-         (map #(dissoc %1 :path-re)
-              (c/select-routes
-               [{:route-name :continents,
-                 :path-re #"/continents",
-                 :method :get,
-                 :path "/continents",
-                 :path-parts ["" "continents"],
-                 :path-params []}
-                {:route-name :continent,
-                 :path-re #"/continents/([^/]+)",
-                 :method :get,
-                 :path-constraints {:id "([^/]+)"},
-                 :path "/continents/:id",
-                 :path-parts ["" "continents" :id],
-                 :path-params [:id]}])))))
-
 (deftest test-wrap-edn-body
   (is (= {:headers {"Content-Type" "application/edn"}, :body "{:a 1, :b 2}"}
          ((c/wrap-edn-body identity) {:edn-body {:a 1 :b 2}}))))
@@ -261,8 +242,17 @@
       (is (= :spots (:route-name route)))
       (is (= :get (:method route)))
       (is (= "/spots" (:path route)))
-      (is (= [] (:path-params route)))
-      (is (= ["" "spots"] (:path-parts route))))))
+      (is (= [] (:path-params route))))))
+
+#+clj
+(deftest test-spit-routes
+  (let [old (c/read-routes "test-resources/routes.edn")
+        filename "/tmp/test-spit-routes"]
+    (c/spit-routes filename old)
+    (let [new (c/read-routes filename)]
+      (is (= (set (keys old)) (set (keys new))))
+      (is (= (map c/serialize-route (vals old))
+             (map c/serialize-route (vals new)))))))
 
 (deftest test-path-matches
   (let [route (first (c/path-matches routes "/continents/1"))]

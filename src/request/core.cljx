@@ -3,6 +3,7 @@
   #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.string :refer [blank? replace]]
             [no.en.core :refer [format-query-params format-url]]
+            #+clj [clojure.pprint :refer [pprint]]
             #+clj [clojure.edn :as edn]
             #+clj [clojure.core.async :refer [<! chan close! go put!]]
             #+clj [slingshot.slingshot :refer [try+]]
@@ -60,11 +61,8 @@
   (fn [route-name & [opts]]
     (format-url (make-request routes route-name opts))))
 
-(defn select-routes
-  "Select all neccesary routing keys from the `routes`."
-  [routes]
-  (->> (map #(select-keys %1 route-keys) routes)
-       (sort-by :route-name)))
+(defn strip-path-re [route]
+  (update-in route [:path-re] #(if %1 (replace %1 #"\\Q|\\E" ""))))
 
 (defn unpack-response [response]
   (let [body (:body response)]
@@ -167,7 +165,10 @@
           (close! channel)))
     channel))
 
-(defn- update-path-re [route]
+(defn serialize-route [route]
+  (update-in route [:path-re] #(if %1 (str %1))))
+
+(defn deserialize-route [route]
   (update-in route [:path-re] #(if %1 (re-pattern %1))))
 
 (defn- zip-routes [routes & [opts]]
@@ -179,16 +180,27 @@
   "Fetch the route specification from `url`."
   [url]
   (->> (:body (client {:method :get :url url :as :auto}))
-       (map update-path-re)
+       (map deserialize-route)
        (zip-routes)))
 
 #+clj
 (defn read-routes
-  "Read the route specification from `filename`."
+  "Read the routes in EDN format from `filename`."
   [filename]
   (->> (edn/read-string (slurp filename))
-       (map update-path-re)
+       (map deserialize-route)
        (zip-routes)))
+
+#+clj
+(defn spit-routes
+  "Spit the `routes` in EDN format to `filename`."
+  [filename routes]
+  (spit filename
+        (with-out-str
+          (->> (vals routes)
+               (map serialize-route)
+               (sort-by :route-name)
+               (pprint)))))
 
 (defmacro defroutes [name routes & [opts]]
   `(do (def ~name
