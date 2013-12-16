@@ -5,8 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :lein-release {:deploy-via :clojars}
-  :dependencies [[clj-http "0.7.7" :exclusions [org.clojure/tools.reader]]
-                 [cljs-http "0.1.1"]
+  :dependencies [[clj-http "0.7.8"]
+                 [cljs-http "0.1.2"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2030"]
                  [org.clojure/core.async "0.1.0-SNAPSHOT"]]
@@ -15,7 +15,7 @@
                              [com.cemerick/clojurescript.test "0.2.1"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}}}
   :plugins [[com.keminglabs/cljx "0.3.1"]
-            [lein-cljsbuild "1.0.0-alpha2"]]
+            [lein-cljsbuild "1.0.1"]]
   :hooks [cljx.hooks leiningen.cljsbuild]
   :cljx {:builds [{:source-paths ["src"]
                    :output-path "target/classes"
@@ -29,7 +29,7 @@
                   {:source-paths ["test"]
                    :output-path "target/test-classes"
                    :rules :cljs}]}
-  :cljsbuild {:test-commands {"phantom" ["runners/phantomjs.js" "target/testable.js"]}
+  :cljsbuild {:test-commands {"phantom" ["phantomjs" :runner "target/testable.js"]}
               :builds [{:source-paths ["target/classes" "target/test-classes"]
                         :compiler {:output-to "target/testable.js"
                                    :optimizations :advanced
