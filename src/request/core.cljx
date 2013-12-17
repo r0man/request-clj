@@ -22,7 +22,7 @@
      (let [params (or (:path-params opts) (:edn-body opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
-         (throw (ex-info (str "Can't expand query param: " param)
+         (throw (ex-info (str "Can't expand path param: " param)
                          {:path (:path route)
                           :params params})))))
    (:path route) (:path-params route)))
