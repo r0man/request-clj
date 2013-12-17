@@ -1,4 +1,4 @@
-(defproject request-clj "0.1.11"
+(defproject request-clj "0.1.12-SNAPSHOT"
   :description "A HTTP library for Clojure & ClojureScript."
   :url "http://github.com/r0man/request-clj"
   :license {:name "Eclipse Public License"
@@ -8,8 +8,7 @@
   :dependencies [[clj-http "0.7.8"]
                  [cljs-http "0.1.2"]
                  [org.clojure/clojure "1.5.1"]
-                 [org.clojure/clojurescript "0.0-2030"]
-                 [org.clojure/core.async "0.1.0-SNAPSHOT"]]
+                 [org.clojure/clojurescript "0.0-2080"]]
   :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.1"]]
                    :plugins [[com.cemerick/austin "0.1.3"]
                              [com.cemerick/clojurescript.test "0.2.1"]]
