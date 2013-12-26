@@ -9,11 +9,11 @@
                  [cljs-http "0.1.2"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2080"]]
-  :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.1"]]
+  :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.2"]]
                    :plugins [[com.cemerick/austin "0.1.3"]
                              [com.cemerick/clojurescript.test "0.2.1"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}}}
-  :plugins [[com.keminglabs/cljx "0.3.1"]
+  :plugins [[com.keminglabs/cljx "0.3.2"]
             [lein-cljsbuild "1.0.1"]]
   :hooks [cljx.hooks leiningen.cljsbuild]
   :cljx {:builds [{:source-paths ["src"]
