@@ -33,7 +33,7 @@
   (if-let [route (get routes (keyword name))]
     (assoc (merge {:scheme :http :server-name "localhost"} route opts)
       :uri (expand-path route opts))
-    (throw (ex-info (str "Can't find route: " name) routes))))
+    opts))
 
 (defn- match-path [path route]
   (if-let [matches (re-matches (:path-re route) path)]

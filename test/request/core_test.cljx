@@ -58,6 +58,11 @@
     :delete-continent {:id 1} "/continents/1"
     :update-continent {:id 1} "/continents/1"))
 
+(deftest test-make-request-not-existing
+  (is (nil? (c/make-request routes :not-existing)))
+  (let [request {:method :get :url "http://example.com"}]
+    (is (= request (c/make-request routes :not-existing request)))))
+
 (deftest test-make-request-continent
   (let [request (c/make-request routes :continent {:path-params {:id 1}})]
     (is (= :get (:method request) ))
