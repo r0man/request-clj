@@ -63,6 +63,15 @@
   (let [request {:method :get :url "http://example.com"}]
     (is (= request (c/make-request routes :not-existing request)))))
 
+(deftest test-make-request-without-routes
+  (is (nil? (c/make-request nil)))
+  (let [request {:method :get :url "http://example.com"}]
+    (is (= request (c/make-request request)))))
+
+(deftest test-make-request-with-request
+  (let [request {:method :get :url "http://example.com"}]
+    (is (= request (c/make-request routes request)))))
+
 (deftest test-make-request-continent
   (let [request (c/make-request routes :continent {:path-params {:id 1}})]
     (is (= :get (:method request) ))

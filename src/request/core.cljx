@@ -35,6 +35,20 @@
       :uri (expand-path route opts))
     opts))
 
+(defn make-request
+  "Find the route `name` in `routes` and return the Ring request."
+  ([request]
+     request)
+  ([routes request]
+     (if (map? request)
+       (make-request routes nil request)
+       (make-request routes request nil)))
+  ([routes name request]
+     (if-let [route (get routes (keyword name))]
+       (assoc (merge {:scheme :http :server-name "localhost"} route request)
+         :uri (expand-path route request))
+       request)))
+
 (defn- match-path [path route]
   (if-let [matches (re-matches (:path-re route) path)]
     (assoc route :path-params (zipmap (:path-params route) (rest matches)))))
