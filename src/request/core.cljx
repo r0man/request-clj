@@ -51,7 +51,9 @@
 
 (defn- match-path [path route]
   (if-let [matches (re-matches (:path-re route) path)]
-    (assoc route :path-params (zipmap (:path-params route) (rest matches)))))
+    (assoc route
+      :uri path
+      :path-params (zipmap (:path-params route) (rest matches)))))
 
 (defn path-matches
   [routes path & [method]]

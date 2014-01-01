@@ -270,6 +270,7 @@
 
 (deftest test-path-matches
   (let [route (first (c/path-matches routes "/continents/1"))]
+    (is (= "/continents/1" (:uri route)))
     (is (= :continent (:route-name route)))
     (is (= "/continents/:id" (:path route)))
     (is (= {:id "1"} (:path-params route)))))
