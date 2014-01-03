@@ -138,6 +138,8 @@
     (is (= "/continents" (:uri request) ))))
 
 (deftest test-path-for-routes
+  (is (nil? ((c/path-for-routes routes) nil)))
+  (is (nil? ((c/path-for-routes routes) :not-existing)))
   (are [name opts expected]
     (is (= expected ((c/path-for-routes routes) name opts)))
     :continents {} "/continents"
@@ -152,6 +154,8 @@
     :update-continent {:path-params {:id 1}} "/continents/1"))
 
 (deftest test-url-for-routes
+  (is (nil? ((c/url-for-routes routes) nil)))
+  (is (nil? ((c/url-for-routes routes) :not-existing)))
   (are [name opts expected]
     (is (= expected ((c/url-for-routes routes) name opts)))
     :continents {} "http://example.com/continents"

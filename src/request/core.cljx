@@ -19,6 +19,11 @@
         route (assoc route :route-name route-name :path-re path-re)]
     (assoc routes route-name route)))
 
+(defn find-route
+  "Lookup the route `name` by keyword in `routes`."
+  [routes name]
+  (get routes (keyword name)))
+
 (defn expand-path
   "Format the `route` url by expanding :path-params in `opts`."
   [route & [opts]]
@@ -41,7 +46,7 @@
        (make-request routes nil request)
        (make-request routes request nil)))
   ([routes name request]
-     (if-let [route (get routes (keyword name))]
+     (if-let [route (find-route routes name)]
        (assoc (merge {:scheme :http :server-name "localhost"} route request)
          :uri (expand-path route request))
        request)))
@@ -63,16 +68,18 @@
 (defn path-for-routes
   "Returns a fn that generates the path of `routes`."
   [routes]
-  (fn [name & [opts]]
-    (let [request (make-request routes name opts)
-          query (format-query-params (:query-params opts))]
-      (str (:uri request) (if-not (blank? query) (str "?" query))))))
+  (fn [route-name & [opts]]
+    (if (find-route routes route-name)
+      (let [request (make-request routes route-name opts)
+            query (format-query-params (:query-params opts))]
+        (str (:uri request) (if-not (blank? query) (str "?" query)))))))
 
 (defn url-for-routes
   "Returns a fn that generates the url of `routes`."
   [routes]
   (fn [route-name & [opts]]
-    (format-url (make-request routes route-name opts))))
+    (if (find-route routes route-name)
+      (format-url (make-request routes route-name opts)))))
 
 (defn strip-path-re [route]
   (update-in route [:path-re] #(if %1 (replace %1 #"\\Q|\\E" ""))))
