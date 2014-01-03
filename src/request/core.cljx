@@ -20,7 +20,7 @@
     (assoc routes route-name route)))
 
 (defn find-route
-  "Lookup the route `name` by keyword in `routes`."
+  "Lookup the route `name` by keyword in `rou"
   [routes name]
   (get routes (keyword name)))
 
@@ -32,9 +32,7 @@
      (let [params (or (:path-params opts) (:edn-body opts) opts)]
        (if-let [value (-> params param)]
          (replace uri (str param) (str value))
-         (throw (ex-info (str "Can't expand path param: " param)
-                         {:path (:path route)
-                          :params params})))))
+         uri)))
    (:path route) (:path-params route)))
 
 (defn make-request

@@ -72,6 +72,14 @@
     :delete-continent {:id 1} "/continents/1"
     :update-continent {:id 1} "/continents/1"))
 
+(deftest test-make-request-empty-params
+  (let [request (c/make-request routes :continent {})]
+    (is (= :get (:method request) ))
+    (is (= :http (:scheme request) ))
+    (is (= "example.com" (:server-name request) ))
+    (is (= 80 (:server-port request) ))
+    (is (= "/continents/:id" (:uri request)))))
+
 (deftest test-make-request-not-existing
   (is (nil? (c/make-request routes :not-existing)))
   (let [request {:method :get :url "http://example.com"}]
@@ -92,7 +100,7 @@
     (is (= :http (:scheme request) ))
     (is (= "example.com" (:server-name request) ))
     (is (= 80 (:server-port request) ))
-    (is (= "/continents/1" (:uri request) ))))
+    (is (= "/continents/1" (:uri request)))))
 
 (deftest test-make-request-continents
   (let [request (c/make-request routes :continents)]
@@ -144,6 +152,7 @@
     (is (= expected ((c/path-for-routes routes) name opts)))
     :continents {} "/continents"
     :continents {:query-params {:a 1 :b 2}} "/continents?a=1&b=2"
+    :continent {} "/continents/:id"
     :continent {:id 1} "/continents/1"
     :continent {:path-params {:id 1}} "/continents/1"
     :continent {:path-params {:id 1} :query-params {:a 1}} "/continents/1?a=1"
@@ -159,6 +168,7 @@
   (are [name opts expected]
     (is (= expected ((c/url-for-routes routes) name opts)))
     :continents {} "http://example.com/continents"
+    :continent {} "http://example.com/continents/:id"
     :continent {:id 1} "http://example.com/continents/1"
     :continent {:path-params {:id 1}} "http://example.com/continents/1"
     :continent {:path-params {:id 1} :query-params {:a 1}} "http://example.com/continents/1?a=1"
