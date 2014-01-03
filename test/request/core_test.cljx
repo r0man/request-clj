@@ -49,6 +49,20 @@
    :server-port 80
    :as :auto})
 
+(deftest test-assoc-route
+  (let [routes (c/assoc-route {} :continents #"/continents")
+        route (:continents routes)]
+    (is (= :get (:method route)))
+    (is (= :continents (:route-name route)))
+    #+clj (is (= "/continents" (str (:path-re route))))
+    #+cljs (is (= "/\\/continents/" (str (:path-re route)))))
+  (let [routes (c/assoc-route {} :create-continent #"/continents" {:method :post})
+        route (:create-continent routes)]
+    (is (= :post (:method route)))
+    (is (= :create-continent (:route-name route)))
+    #+clj (is (= "/continents" (str (:path-re route))))
+    #+cljs (is (= "/\\/continents/" (str (:path-re route))))))
+
 (deftest test-expand-path
   (are [name opts expected]
     (is (= expected (c/expand-path (get routes name) {:path-params opts})))

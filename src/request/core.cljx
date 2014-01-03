@@ -14,6 +14,11 @@
 (def route-keys
   [:method :route-name :path :path-params :path-re])
 
+(defn assoc-route [routes route-name path-re & [opts]]
+  (let [route (merge {:method :get} opts)
+        route (assoc route :route-name route-name :path-re path-re)]
+    (assoc routes route-name route)))
+
 (defn expand-path
   "Format the `route` url by expanding :path-params in `opts`."
   [route & [opts]]
@@ -26,14 +31,6 @@
                          {:path (:path route)
                           :params params})))))
    (:path route) (:path-params route)))
-
-(defn make-request
-  "Find the route `name` in `routes` and return the Ring request."
-  [routes name & [opts]]
-  (if-let [route (get routes (keyword name))]
-    (assoc (merge {:scheme :http :server-name "localhost"} route opts)
-      :uri (expand-path route opts))
-    opts))
 
 (defn make-request
   "Find the route `name` in `routes` and return the Ring request."
@@ -116,7 +113,7 @@
               (-> request :query-params :page))
         (client request)
         (clj-http/with-connection-pool {}
-          (paginate request 1 (or per-page 100)))))))
+                  (paginate request 1 (or per-page 100)))))))
 
 ;; PLATFORM
 
