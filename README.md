@@ -8,7 +8,7 @@ Via Clojars: https://clojars.org/request-clj
 
 ## Usage
 
-    (require '[request.core :refer [defroutes]])
+    (require '[request.routes :refer [defroutes]])
 
     (defroutes routes
       [{:route-name :continents,
