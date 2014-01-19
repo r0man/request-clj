@@ -1,7 +1,7 @@
 (ns request.core
   (:refer-clojure :exclude [replace])
   (:require [clojure.string :refer [blank? replace]]
-            [no.en.core :refer [format-query-params format-url]]
+            [no.en.core :refer [format-query-params format-url parse-url]]
             #+clj [clojure.pprint :refer [pprint]]
             #+clj [clojure.edn :as edn]
             #+clj [clojure.core.async :refer [<! chan close! map< go put!]]
@@ -9,90 +9,16 @@
             #+clj [clj-http.client :as clj-http]
             #+cljs [cljs-http.client :as cljs-http]
             #+cljs [cljs.core.async :refer [<! chan close! map< put!]])
-  #+cljs (:require-macros [cljs.core.async.macros :refer [go]]))
+  #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
+  #+cljs (:import goog.Uri))
 
-(def route-keys
-  [:method :route-name :path :path-params :path-re])
-
-(defn assoc-route [routes route-name path-re & [opts]]
-  (let [route (merge {:method :get} opts)
-        route (assoc route :route-name route-name :path-re path-re)]
-    (assoc routes route-name route)))
+(defprotocol IRequest
+  (to-request [x] "Convert `x` into an HTTP request".))
 
 (defn- check-request [request]
   (if-not (or (:uri request) (:url request))
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
-    request))
-
-(defn find-route
-  "Lookup the route `name` by keyword in `rou"
-  [routes name]
-  (get routes (keyword name)))
-
-(defn expand-path
-  "Format the `route` url by expanding :path-params in `opts`."
-  [route & [opts]]
-  (reduce
-   (fn [uri param]
-     (let [params (or (:path-params opts) (:edn-body opts) opts)]
-       (if-let [value (-> params param)]
-         (replace uri (str param) (str value))
-         uri)))
-   (:path route) (:path-params route)))
-
-(defn make-request
-  "Find the route `name` in `routes` and return the Ring request."
-  ([request]
-     request)
-  ([routes request]
-     (if (map? request)
-       (make-request routes nil request)
-       (make-request routes request nil)))
-  ([routes name request]
-     (if-let [route (find-route routes name)]
-       (assoc (merge {:scheme :http :server-name "localhost"} route request)
-         :uri (expand-path route request))
-       request)))
-
-(defn- match-path [path route]
-  (if-let [matches (re-matches (:path-re route) path)]
-    (assoc route
-      :uri path
-      :path-params (zipmap (:path-params route) (rest matches)))))
-
-(defn path-matches
-  [routes path & [method]]
-  (let [method (or method :get)]
-    (->> (vals routes)
-         (filter #(= method (:method %1)))
-         (map (partial match-path path))
-         (remove nil?))))
-
-(defn path-for-routes
-  "Returns a fn that generates the path of `routes`."
-  [routes]
-  (fn [route-name & [opts]]
-    (if (find-route routes route-name)
-      (let [request (make-request routes route-name opts)
-            query (format-query-params (:query-params opts))]
-        (str (:uri request) (if-not (blank? query) (str "?" query)))))))
-
-(defn url-for-routes
-  "Returns a fn that generates the url of `routes`."
-  [routes]
-  (fn [route-name & [opts]]
-    (if (find-route routes route-name)
-      (format-url (make-request routes route-name opts)))))
-
-(defn strip-path-re [route]
-  (update-in route [:path-re] #(if %1 (replace %1 #"\\Q|\\E" ""))))
-
-(defn unpack-response [response]
-  (let [body (:body response)]
-    (if (or (map? body)
-            (sequential? body))
-      (with-meta body (dissoc response :body))
-      body)))
+    (merge {:method :get} request)))
 
 (defn wrap-edn-body [client]
   (fn [request]
@@ -125,8 +51,6 @@
         (clj-http/with-connection-pool {}
           (paginate request 1 (or per-page 100)))))))
 
-;; PLATFORM
-
 (def client
   #+clj
   (->  #'clj-http/request
@@ -136,30 +60,32 @@
   (->  cljs-http/request
        (wrap-edn-body)))
 
-#+clj
 (defn http
   "Make a HTTP request and return the response."
-  [routes name & [opts]]
+  [request]
   #+clj
-  (-> (make-request routes name opts)
-      (assoc :throw-exceptions false)
-      (client)))
+  (->> (to-request request)
+       (merge {:throw-exceptions false})
+       (client))
+  #+cljs
+  (throw (ex-info "Not implemented in JavaScript." {})))
 
-#+clj
 (defn http!
   "Make a HTTP request and return the response."
-  [routes name & [opts]]
+  [request]
   #+clj
-  (-> (make-request routes name opts)
-      (assoc :throw-exceptions true)
-      (client)))
+  (->> (to-request request)
+       (merge {:throw-exceptions true})
+       (client))
+  #+cljs
+  (throw (ex-info "Not implemented in JavaScript." {})))
 
 (defn http<
   "Make a HTTP request and return a core.async channel."
-  [routes name & [opts]]
+  [request]
   #+clj
   (let [channel (chan)
-        request (make-request routes name opts)]
+        request (merge {:throw-exceptions true} (to-request request))]
     (check-request request)
     (go (try+ (>! channel (client request))
               (catch map? response
@@ -170,97 +96,44 @@
                 (close! channel))))
     channel)
   #+cljs
-  (client (make-request routes name opts)))
+  (client request))
 
-(defn body
-  "Make a HTTP request and return the body of response."
-  [routes name & [opts]]
-  #+clj (unpack-response (http routes name opts))
-  #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
-
-(defn body<
-  "Make a HTTP request and return the body in a core.async channel."
-  [routes name & [opts]]
-  (map< unpack-response (http< routes name opts)))
-
-(defn serialize-route [route]
-  (update-in route [:path-re] #(if %1 (str %1))))
-
-(defn deserialize-route [route]
-  (update-in route [:path-re] #(if %1 (re-pattern %1))))
-
-(defn- zip-routes [routes & [opts]]
-  (zipmap (map :route-name routes)
-          (map #(merge opts %1) routes)))
+(defmacro http<!
+  "Make a HTTP request and return a core.async channel."
+  [request]
+  `(let [channel# (request.core/http< ~request)]
+     #+clj (clojure.core.async/<! channel#)
+     #+cljs (cljs.core.async/<! channel#)))
 
 #+clj
-(defn fetch-routes
-  "Fetch the route specification from `url`."
-  [url]
-  (->> (:body (client {:method :get :url url :as :auto}))
-       (map deserialize-route)
-       (zip-routes)))
+(extend-protocol IRequest
+  clojure.lang.PersistentArrayMap
+  (to-request [m]
+    (check-request m))
+  clojure.lang.PersistentHashMap
+  (to-request [m]
+    (check-request m))
+  String
+  (to-request [s]
+    (check-request (parse-url s)))
+  java.net.URI
+  (to-request [uri]
+    (to-request (str uri)))
+  java.net.URL
+  (to-request [url]
+    (to-request (str url))))
 
-#+clj
-(defn read-routes
-  "Read the routes in EDN format from `filename`."
-  [filename]
-  (->> (edn/read-string (slurp filename))
-       (map deserialize-route)
-       (zip-routes)))
-
-#+clj
-(defn spit-routes
-  "Spit the `routes` in EDN format to `filename`."
-  [filename routes]
-  (spit filename
-        (with-out-str
-          (->> (vals routes)
-               (map serialize-route)
-               (sort-by :route-name)
-               (pprint)))))
-
-(defmacro defroutes [name routes & [opts]]
-  `(do (def ~name
-         (let [routes# ~routes
-               opts# ~opts]
-           (zipmap (map :route-name routes#)
-                   (map (partial merge opts#) routes#))))
-       (def ~'path-for (request.core/path-for-routes ~name))
-       (def ~'url-for (request.core/url-for-routes ~name))
-       (defn ~'body [~'route & [~'opts]]
-         (request.core/body ~name ~'route ~'opts))
-       (defn ~'body< [~'route & [~'opts]]
-         (request.core/body< ~name ~'route ~'opts))
-       (defn ~'http [~'route & [~'opts]]
-         (request.core/http ~name ~'route ~'opts))
-       (defn ~'http! [~'route & [~'opts]]
-         (request.core/http! ~name ~'route ~'opts))
-       (defn ~'http< [~'route & [~'opts]]
-         (request.core/http< ~name ~'route ~'opts))
-       (defn ~'request [~'route & [~'opts]]
-         (request.core/make-request ~name ~'route ~'opts))))
-
-;; (defmacro defmethods [& methods]
-;;   `(do ~@(for [method# methods]
-;;            `(do (defn ~(symbol (str method# "<"))
-;;                   [~'res ~'link & [~'opts]]
-;;                   (if-let [href# (hal.core/href ~'res ~'link)]
-;;                     (request.core/http<!
-;;                      nil
-;;                      {:request-method ~(keyword method#)
-;;                       :url href#})
-;;                     (throw (ex-info (str "Can't find link: " (name ~'link))
-;;                                     {:link ~'link :resource ~'res}))))
-;;                 (defmacro ~(symbol (str method# "<!"))
-;;                   [res# link# & [opts#]])))))
-
-;; (defmethods delete get head patch post put)
-
-
-(comment
-  (require '[clojure.pprint :refer [pprint]])
-  (def r (read-routes "test-resources/routes.edn"))
-  (clojure.pprint/pprint (read-routes "test-resources/routes.edn"))
-  (first (:spots (read-routes "test-resources/routes.edn")))
-  (first (fetch-routes "http://api.burningswell.dev/routes")))
+#+cljs
+(extend-protocol IRequest
+  PersistentArrayMap
+  (to-request [m]
+    (check-request m))
+  PersistentHashMap
+  (to-request [m]
+    (check-request m))
+  string
+  (to-request [s]
+    (check-request (parse-url s)))
+  goog.Uri
+  (to-request [uri]
+    (to-request (str uri))))
