@@ -5,6 +5,7 @@
             #+clj [clojure.test :refer :all]
             #+clj [clojure.core.async :refer [<!! go alts!]]
             #+clj [clj-http.client :as clj-http]
+            #+cljs [cljs-http.client :as clj-http]
             #+cljs [cemerick.cljs.test :as t])
   #+cljs (:import goog.Uri))
 
@@ -76,6 +77,31 @@
                        :url "http://example.com/continents"
                        :as :auto
                        :edn-body {:name "Europe"}})))))
+
+(deftest test-http<
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= true (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= {:query "Europe"} (:query-params request)))
+       {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
+    (is (core/http< "http://example.com/continents?query=Europe")))
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= :post (:method request)))
+       (is (= "http://example.com/continents" (:url request)))
+       (is (= "{:name \"Europe\"}" (:body request)))
+       {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
+    (is (core/http< {:method :post
+                     :url "http://example.com/continents"
+                     :as :auto
+                     :edn-body {:name "Europe"}}))))
 
 (comment
   (core/http "http://api.burningswell.com/continents")
