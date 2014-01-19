@@ -54,8 +54,7 @@
 (def client
   #+clj
   (->  #'clj-http/request
-       (wrap-edn-body)
-       (wrap-pagination))
+       (wrap-edn-body))
   #+cljs
   (->  cljs-http/request
        (wrap-edn-body)))
