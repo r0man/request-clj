@@ -10,7 +10,7 @@
   #+cljs (:import goog.Uri))
 
 (deftest test-to-request
-  (is (= {:url "http://api.burningswell.com/continents", :method :get}
+  (is (= {:url "http://api.burningswell.com/continents", :method :get :as :auto}
          (core/to-request {:url "http://api.burningswell.com/continents"})))
   (is (= (core/to-request "http://api.burningswell.com/continents")
          #+clj (core/to-request (java.net.URL. "http://api.burningswell.com/continents"))
