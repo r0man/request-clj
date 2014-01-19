@@ -61,13 +61,6 @@
       :uri path
       :path-params (zipmap (:path-params route) (rest matches)))))
 
-(defn- pack-meta [response]
-  (let [body (:body response)]
-    (if (or (map? body)
-            (sequential? body))
-      (with-meta body (dissoc response :body))
-      body)))
-
 (defn path-matches
   [routes path & [method]]
   (let [method (or method :get)]
@@ -113,13 +106,13 @@
 (defn body
   "Make a HTTP request and return the body of response."
   [routes name & [opts]]
-  (pack-meta (core/http (resolve-route routes name opts)))
+  (core/with-meta-resp (core/http (resolve-route routes name opts)))
   #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
 
 (defn body<
   "Make a HTTP request and return the body in a core.async channel."
   [routes name & [opts]]
-  (map< pack-meta (core/http< (resolve-route routes name opts))))
+  (map< core/with-meta-resp (core/http< (resolve-route routes name opts))))
 
 (defn serialize-route [route]
   (update-in route [:path-re] #(if %1 (str %1))))

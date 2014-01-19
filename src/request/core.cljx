@@ -20,6 +20,13 @@
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
     (merge {:as :auto :method :get} request)))
 
+(defn with-meta-resp [resp]
+  (let [body (:body resp)]
+    (if (or (map? body)
+            (sequential? body))
+      (with-meta body (dissoc resp :body))
+      body)))
+
 (defn wrap-edn-body [client]
   (fn [request]
     (if (:edn-body request)
