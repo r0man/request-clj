@@ -8,6 +8,7 @@
             #+clj [clojure.test :refer :all]
             #+clj [clojure.core.async :refer [<!! go alts!]]
             #+clj [clj-http.client :as clj-http]
+            #+cljs [cljs-http.client :as clj-http]
             #+cljs [cemerick.cljs.test :as t]))
 
 (defroutes routes
@@ -257,6 +258,32 @@
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
            (http! :create-continent {:as :auto :edn-body {:name "Europe"}})))))
+
+(deftest test-http<
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= true (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= {:query "Europe"} (:query-params request)))
+       {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
+    (is (http< :continents {:query-params {:query "Europe"}})))
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= true (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :post (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (= "{:name \"Europe\"}" (:body request)))
+       {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
+    (is (http< :create-continent {:as :auto :edn-body {:name "Europe"}}))))
 
 #+clj
 (deftest test-fetch-routes
