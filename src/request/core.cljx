@@ -1,15 +1,15 @@
 (ns request.core
   (:refer-clojure :exclude [replace])
-  #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.string :refer [blank? replace]]
             [no.en.core :refer [format-query-params format-url]]
             #+clj [clojure.pprint :refer [pprint]]
             #+clj [clojure.edn :as edn]
-            #+clj [clojure.core.async :refer [<! chan close! go put!]]
+            #+clj [clojure.core.async :refer [<! chan close! map< go put!]]
             #+clj [slingshot.slingshot :refer [try+]]
             #+clj [clj-http.client :as clj-http]
             #+cljs [cljs-http.client :as cljs-http]
-            #+cljs [cljs.core.async :refer [<! chan close! put!]]))
+            #+cljs [cljs.core.async :refer [<! chan close! map< put!]])
+  #+cljs (:require-macros [cljs.core.async.macros :refer [go]]))
 
 (def route-keys
   [:method :route-name :path :path-params :path-re])
@@ -18,6 +18,11 @@
   (let [route (merge {:method :get} opts)
         route (assoc route :route-name route-name :path-re path-re)]
     (assoc routes route-name route)))
+
+(defn- check-request [request]
+  (if-not (or (:uri request) (:url request))
+    (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
+    request))
 
 (defn find-route
   "Lookup the route `name` by keyword in `rou"
@@ -118,7 +123,7 @@
               (-> request :query-params :page))
         (client request)
         (clj-http/with-connection-pool {}
-                  (paginate request 1 (or per-page 100)))))))
+          (paginate request 1 (or per-page 100)))))))
 
 ;; PLATFORM
 
@@ -131,39 +136,38 @@
   (->  cljs-http/request
        (wrap-edn-body)))
 
+#+clj
 (defn http
   "Make a HTTP request and return the response."
   [routes name & [opts]]
   #+clj
   (-> (make-request routes name opts)
       (assoc :throw-exceptions false)
-      (client))
-  #+cljs
-  (throw js/Error "Not implemented on JavaScript runtime."))
+      (client)))
 
+#+clj
 (defn http!
   "Make a HTTP request and return the response."
   [routes name & [opts]]
   #+clj
   (-> (make-request routes name opts)
       (assoc :throw-exceptions true)
-      (client))
-  #+cljs
-  (throw js/Error "Not implemented on JavaScript runtime."))
+      (client)))
 
-(defn http<!
+(defn http<
   "Make a HTTP request and return a core.async channel."
   [routes name & [opts]]
   #+clj
-  (let [channel (chan)]
-    (go (try+ (->> (make-request routes name opts)
-                   (client)
-                   (>! channel))
+  (let [channel (chan)
+        request (make-request routes name opts)]
+    (check-request request)
+    (go (try+ (>! channel (client request))
               (catch map? response
                 (>! channel response))
               (catch Object _
                 (>! channel (:throwable &throw-context)))
-              (finally (close! channel))))
+              (finally
+                (close! channel))))
     channel)
   #+cljs
   (client (make-request routes name opts)))
@@ -174,14 +178,10 @@
   #+clj (unpack-response (http routes name opts))
   #+cljs (throw js/Error "Not implemented on JavaScript runtime."))
 
-(defn body<!
+(defn body<
   "Make a HTTP request and return the body in a core.async channel."
   [routes name & [opts]]
-  (let [channel (chan)]
-    (go (let [response (<! (http<! routes name opts))]
-          (put! channel (unpack-response response))
-          (close! channel)))
-    channel))
+  (map< unpack-response (http< routes name opts)))
 
 (defn serialize-route [route]
   (update-in route [:path-re] #(if %1 (str %1))))
@@ -230,16 +230,33 @@
        (def ~'url-for (request.core/url-for-routes ~name))
        (defn ~'body [~'route & [~'opts]]
          (request.core/body ~name ~'route ~'opts))
-       (defn ~'body<! [~'route & [~'opts]]
-         (request.core/body<! ~name ~'route ~'opts))
+       (defn ~'body< [~'route & [~'opts]]
+         (request.core/body< ~name ~'route ~'opts))
        (defn ~'http [~'route & [~'opts]]
          (request.core/http ~name ~'route ~'opts))
        (defn ~'http! [~'route & [~'opts]]
          (request.core/http! ~name ~'route ~'opts))
-       (defn ~'http<! [~'route & [~'opts]]
-         (request.core/http<! ~name ~'route ~'opts))
+       (defn ~'http< [~'route & [~'opts]]
+         (request.core/http< ~name ~'route ~'opts))
        (defn ~'request [~'route & [~'opts]]
          (request.core/make-request ~name ~'route ~'opts))))
+
+;; (defmacro defmethods [& methods]
+;;   `(do ~@(for [method# methods]
+;;            `(do (defn ~(symbol (str method# "<"))
+;;                   [~'res ~'link & [~'opts]]
+;;                   (if-let [href# (hal.core/href ~'res ~'link)]
+;;                     (request.core/http<!
+;;                      nil
+;;                      {:request-method ~(keyword method#)
+;;                       :url href#})
+;;                     (throw (ex-info (str "Can't find link: " (name ~'link))
+;;                                     {:link ~'link :resource ~'res}))))
+;;                 (defmacro ~(symbol (str method# "<!"))
+;;                   [res# link# & [opts#]])))))
+
+;; (defmethods delete get head patch post put)
+
 
 (comment
   (require '[clojure.pprint :refer [pprint]])
