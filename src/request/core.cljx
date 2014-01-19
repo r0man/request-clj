@@ -91,15 +91,10 @@
   [request]
   #+clj
   (let [channel (chan)
-        request (merge {:throw-exceptions true} (to-request request))]
+        request (merge {:throw-exceptions false} (to-request request))]
     (check-request request)
     (go (try+ (>! channel (client request))
-              (catch map? response
-                (>! channel response))
-              (catch Object _
-                (>! channel (:throwable &throw-context)))
-              (finally
-                (close! channel))))
+              (finally (close! channel))))
     channel)
   #+cljs
   (client request))
