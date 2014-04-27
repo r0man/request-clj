@@ -4,11 +4,11 @@
             [no.en.core :refer [format-query-params format-url parse-url]]
             #+clj [clojure.pprint :refer [pprint]]
             #+clj [clojure.edn :as edn]
-            #+clj [clojure.core.async :refer [<! chan close! map< go put!]]
+            #+clj [clojure.core.async :refer [<! >! chan close! map< go put!]]
             #+clj [slingshot.slingshot :refer [try+]]
             #+clj [clj-http.client :as clj-http]
             #+cljs [cljs-http.client :as cljs-http]
-            #+cljs [cljs.core.async :refer [<! chan close! map< put!]])
+            #+cljs [cljs.core.async :refer [<! >! chan close! map< put!]])
   #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
   #+cljs (:import goog.Uri))
 

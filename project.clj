@@ -6,7 +6,7 @@
   :min-lein-version "2.0.0"
   :lein-release {:deploy-via :clojars}
   :dependencies [[clj-http "0.9.1"]
-                 [cljs-http "0.1.9"]
+                 [cljs-http "0.1.10"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2080"]]
   :cljsbuild {:builds []}
