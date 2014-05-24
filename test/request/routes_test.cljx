@@ -76,10 +76,10 @@
 
 (deftest test-resolve-route-empty-params
   (let [request (routes/resolve-route routes :continent {})]
-    (is (= :get (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
+    (is (= :get (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
     (is (= "/continents/:id" (:uri request)))))
 
 (deftest test-resolve-route-not-existing
@@ -98,54 +98,54 @@
 
 (deftest test-resolve-route-continent
   (let [request (routes/resolve-route routes :continent {:path-params {:id 1}})]
-    (is (= :get (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
+    (is (= :get (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
     (is (= "/continents/1" (:uri request)))))
 
 (deftest test-resolve-route-continents
   (let [request (routes/resolve-route routes :continents)]
-    (is (= :get (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
-    (is (= "/continents" (:uri request) ))))
+    (is (= :get (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
+    (is (= "/continents" (:uri request)))))
 
 (deftest test-resolve-route-create-continent
   (let [request (routes/resolve-route routes :create-continent {:edn-body {:id 1 :name "Europe"}})]
     (is (= {:id 1 :name "Europe"} (:edn-body request)))
-    (is (= :post (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
-    (is (= "/continents" (:uri request) ))))
+    (is (= :post (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
+    (is (= "/continents" (:uri request)))))
 
 (deftest test-resolve-route-delete-continent
   (let [request (routes/resolve-route routes :delete-continent {:path-params {:id 1}})]
-    (is (= :delete (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
-    (is (= "/continents/1" (:uri request) ))))
+    (is (= :delete (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
+    (is (= "/continents/1" (:uri request)))))
 
 (deftest test-resolve-route-update-continent
   (let [request (routes/resolve-route routes :update-continent {:edn-body {:id 1 :name "Europe"}})]
     (is (= {:id 1 :name "Europe"} (:edn-body request)))
-    (is (= :put (:method request) ))
-    (is (= :http (:scheme request) ))
-    (is (= "example.com" (:server-name request) ))
-    (is (= 80 (:server-port request) ))
-    (is (= "/continents/1" (:uri request) ))))
+    (is (= :put (:method request)))
+    (is (= :http (:scheme request)))
+    (is (= "example.com" (:server-name request)))
+    (is (= 80 (:server-port request)))
+    (is (= "/continents/1" (:uri request)))))
 
 (deftest test-resolve-route-override-defaults
   (let [default {:scheme :https :server-name "other.com" :server-port 8080}
         request (routes/resolve-route routes :continents default)]
-    (is (= :get (:method request) ))
-    (is (= (:scheme default) (:scheme request) ))
-    (is (= (:server-name default) (:server-name request) ))
-    (is (= (:server-port default) (:server-port request) ))
-    (is (= "/continents" (:uri request) ))))
+    (is (= :get (:method request)))
+    (is (= (:scheme default) (:scheme request)))
+    (is (= (:server-name default) (:server-name request)))
+    (is (= (:server-port default) (:server-port request)))
+    (is (= "/continents" (:uri request)))))
 
 (deftest test-path-for-routes
   (is (nil? ((routes/path-for-routes routes) nil)))
@@ -195,6 +195,9 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (let [response (body :continents {:query-params {:query "Europe"}})]
       (is (= [{:id 1 :name "Europe"}] response))
@@ -213,6 +216,9 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
            (http :continents {:query-params {:query "Europe"}}))))
@@ -226,6 +232,9 @@
        (is (= :post (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= "{:name \"Europe\"}" (:body request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
            (http :create-continent {:as :auto :edn-body {:name "Europe"}})))))
@@ -242,6 +251,9 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
            (http! :continents {:query-params {:query "Europe"}}))))
@@ -263,25 +275,31 @@
   (with-redefs
     [clj-http/request
      (fn [request]
-       (is (= true (:throw-exceptions request)))
+       (is (= false(:throw-exceptions request)))
        (is (= :http (:scheme request)))
        (is (= "example.com" (:server-name request)))
        (is (= 80 (:server-port request)))
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (http< :continents {:query-params {:query "Europe"}})))
   (with-redefs
     [clj-http/request
      (fn [request]
-       (is (= true (:throw-exceptions request)))
+       (is (= false (:throw-exceptions request)))
        (is (= :http (:scheme request)))
        (is (= "example.com" (:server-name request)))
        (is (= 80 (:server-port request)))
        (is (= :post (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= "{:name \"Europe\"}" (:body request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (http< :create-continent {:as :auto :edn-body {:name "Europe"}}))))
 

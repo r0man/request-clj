@@ -37,6 +37,9 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
            (core/http "http://example.com/continents?query=Europe"))))
@@ -47,6 +50,9 @@
        (is (= :post (:method request)))
        (is (= "http://example.com/continents" (:url request)))
        (is (= "{:name \"Europe\"}" (:body request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
            (core/http {:method :post
@@ -66,6 +72,9 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (= {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}}
            (core/http! "http://example.com/continents?query=Europe"))))
@@ -93,6 +102,12 @@
        (is (= :get (:method request)))
        (is (= "/continents" (:uri request)))
        (is (= {:query "Europe"} (:query-params request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
        {:status 200 :body [{:id 1 :name "Europe"}] :headers {"Content-Type" "application/edn"}})]
     (is (core/http< "http://example.com/continents?query=Europe")))
   (with-redefs

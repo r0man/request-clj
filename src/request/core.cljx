@@ -96,7 +96,6 @@
   #+clj
   (let [channel (chan)
         request (merge {:throw-exceptions false} (to-request request))]
-    (check-request request)
     (go (try+ (>! channel (client request))
               (finally (close! channel))))
     channel)
