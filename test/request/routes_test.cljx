@@ -237,7 +237,22 @@
        (is (= "application/edn" (:content-type request)))
        {:status 201 :body (:body request) :headers {"content-type" "application/edn"}})]
     (is (= {:status 201, :body "{:name \"Europe\"}", :headers {"content-type" "application/edn"}}
-           (http :create-continent {:as :auto :edn-body {:name "Europe"}})))))
+           (http :create-continent {:as :auto :edn-body {:name "Europe"}}))))
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= false (:throw-exceptions request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= :get (:method request)))
+       (is (= "/continents" (:uri request)))
+       (is (nil? (:body request)))
+       (is (= "application/edn" (:accept request)))
+       (is (= :auto (:as request)))
+       (is (= "application/edn" (:content-type request)))
+       {:status 200 :body [] :headers {"content-type" "application/edn"}})]
+    (is (http :continents))))
 
 #+clj
 (deftest test-http!
