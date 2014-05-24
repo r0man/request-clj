@@ -18,7 +18,11 @@
 (defn- check-request [request]
   (if-not (or (:uri request) (:url request))
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
-    (merge {:as :auto :method :get} request)))
+    (merge {:accept "application/edn"
+            :as :auto
+            :content-type "application/edn"
+            :method :get}
+           request)))
 
 (defn with-meta-resp [resp]
   (let [body (:body resp)]
