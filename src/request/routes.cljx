@@ -170,7 +170,8 @@
        (defn ~'http< [~'route & [~'opts]]
          (request.routes/http< ~name ~'route ~'opts))
        (defn ~'make-request [~'route & [~'opts]]
-         (request.routes/resolve-route ~name ~'route ~'opts))))
+         (-> (request.routes/resolve-route ~name ~'route ~'opts)
+             (request.core/check-request)))))
 
 (comment
   (require '[clojure.pprint :refer [pprint]])

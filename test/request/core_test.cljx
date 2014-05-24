@@ -108,7 +108,7 @@
                      :edn-body {:name "Europe"}}))))
 
 (comment
-  (core/http "http://api.burningswell.com/continents")
+  (:name (:body (core/http "http://api.burningswell.dev/continents/1")))
   (core/http! "http://api.burningswell.com/continents")
   (<!! (core/http< "http://api.burningswell.com/continents"))
   (go (prn (core/http<! "http://api.burningswell.com/continents"))))

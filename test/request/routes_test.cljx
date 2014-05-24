@@ -328,9 +328,9 @@
     (is (= {:id "1"} (:path-params route)))))
 
 (comment
-  (request-map :continents)
+  (make-request :continents)
   (http :continents)
-  (http :continent {:path-params {:id -1}})
+  (http :continent {:path-params {:id 1}})
   (http! :continent {:path-params {:id -1}})
   (http<! :continents)
   (body :continents {:server-name "api.burningswell.com"})

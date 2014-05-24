@@ -15,7 +15,7 @@
 (defprotocol IRequest
   (to-request [x] "Convert `x` into an HTTP request".))
 
-(defn- check-request [request]
+(defn check-request [request]
   (if-not (or (:uri request) (:url request))
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
     (merge {:accept "application/edn"

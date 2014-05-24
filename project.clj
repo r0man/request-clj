@@ -6,14 +6,14 @@
   :min-lein-version "2.0.0"
   :lein-release {:deploy-via :clojars}
   :dependencies [[clj-http "0.9.1"]
-                 [cljs-http "0.1.10"]
+                 [cljs-http "0.1.11"]
                  [org.clojure/clojure "1.5.1"]
                  [org.clojure/clojurescript "0.0-2227"]]
   :cljsbuild {:builds []}
   :profiles {:dev {:dependencies [[com.keminglabs/cljx "0.3.2"]]
                    :plugins [[com.keminglabs/cljx "0.3.2"] ;; Must be before Austin: https://github.com/cemerick/austin/issues/37
                              [com.cemerick/austin "0.1.4"]
-                             [com.cemerick/clojurescript.test "0.2.2"]
+                             [com.cemerick/clojurescript.test "0.3.1"]
                              [lein-cljsbuild "1.0.3"]]
                    :hooks [cljx.hooks leiningen.cljsbuild]
                    :cljx {:builds [{:source-paths ["src"]
