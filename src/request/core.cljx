@@ -100,7 +100,7 @@
               (finally (close! channel))))
     channel)
   #+cljs
-  (client request))
+  (client (to-request request)))
 
 (defmacro http<!
   "Make a HTTP request and return a core.async channel."
