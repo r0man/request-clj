@@ -328,7 +328,7 @@
     (is (= {:id "1"} (:path-params route)))))
 
 (comment
-  (request :continents)
+  (request-map :continents)
   (http :continents)
   (http :continent {:path-params {:id -1}})
   (http! :continent {:path-params {:id -1}})
@@ -336,7 +336,7 @@
   (body :continents {:server-name "api.burningswell.com"})
   (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
   (body :delete-continent {:server-name "api.burningswell.dev" :path-params {:id 1}})
-  (request :delete-continent {:id 1})
+  (make-request :delete-continent {:id 1})
   (<!! (body< :continents {:server-name "api.burningswell.com"}))
   (http< :continentss {:server-name "api.burningswell.com"})
   (<!! (body< :continents {:server-name "api.burningswell.com"}))

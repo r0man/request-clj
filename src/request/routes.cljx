@@ -169,7 +169,7 @@
          (request.routes/http! ~name ~'route ~'opts))
        (defn ~'http< [~'route & [~'opts]]
          (request.routes/http< ~name ~'route ~'opts))
-       (defn ~'request [~'route & [~'opts]]
+       (defn ~'make-request [~'route & [~'opts]]
          (request.routes/resolve-route ~name ~'route ~'opts))))
 
 (comment
