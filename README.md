@@ -47,6 +47,6 @@ Via Clojars: https://clojars.org/request-clj
 
 ## License
 
-Copyright © 2013 Roman Scherer
+Copyright © 2013 r0man
 
 Distributed under the Eclipse Public License, the same as Clojure.
