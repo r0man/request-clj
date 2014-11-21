@@ -1,113 +1,95 @@
 (ns request.core
-  (:refer-clojure :exclude [replace])
+  (:refer-clojure :exclude [get replace])
   (:require [clojure.string :refer [blank? replace]]
             [no.en.core :refer [format-query-params format-url parse-url]]
+            [routes.core :as routes]
             #+clj [clojure.pprint :refer [pprint]]
             #+clj [clojure.edn :as edn]
             #+clj [clojure.core.async :refer [<! >! chan close! map< go put!]]
-            #+clj [slingshot.slingshot :refer [try+]]
-            #+clj [clj-http.client :as clj-http]
-            #+cljs [cljs-http.client :as cljs-http]
-            #+cljs [cljs.core.async :refer [<! >! chan close! map< put!]])
-  #+cljs (:require-macros [cljs.core.async.macros :refer [go]])
+            #+clj [clj-http.client :as http]
+            #+cljs [cljs-http.client :as http])
   #+cljs (:import goog.Uri))
+
+(defrecord Client [backend pool router])
 
 (defprotocol IRequest
   (to-request [x] "Convert `x` into an HTTP request".))
 
-(defn check-request [request]
+(defn- check-request [request]
   (if-not (or (:uri request) (:url request))
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
-    (merge {:accept "application/edn"
-            :as :auto
-            :content-type "application/edn"
-            :method :get}
-           request)))
+    request))
 
-(defn with-meta-resp [resp]
-  (let [body (:body resp)]
-    (if (or (map? body)
-            (sequential? body))
-      (with-meta body (dissoc resp :body))
-      body)))
+(defn new-client
+  "Return a new HTTP client using `config`."
+  [& [config]]
+  (-> (merge
+       {:as :auto
+        :backend #+clj #'http/request #+cljs http/request
+        :coerce :auto
+        :throw-exceptions false}
+       config)
+      (map->Client)))
 
-(defn wrap-edn-body [client]
-  (fn [request]
-    (if (:edn-body request)
-      (-> (dissoc request :edn-body)
-          (assoc :body (pr-str (:edn-body request)))
-          (assoc-in [:headers "Content-Type"] "application/edn")
-          (client))
-      (client request))))
+(defn send-request
+  "Send the HTTP `request` via `client`."
+  [client request]
+  (let [request (to-request request)]
+    ((:backend client) (merge (into {} client) request))))
 
-#+clj
-(defn wrap-pagination [client & [per-page]]
-  (letfn [(paginate [request & [page per-page]]
-            (update-in
-             (-> request
-                 (assoc-in [:query-params :page] page)
-                 (assoc-in [:query-params :per-page] per-page)
-                 (client))
-             [:body]
-             #(if (sequential? %1)
-                (lazy-seq
-                 (if-not (empty? %1)
-                   (concat %1 (:body (paginate request (inc page) per-page)))
-                   %1))
-                %1)))]
-    (fn [request]
-      (if (or (= :get (:method request))
-              (-> request :query-params :page))
-        (client request)
-        (clj-http/with-connection-pool {}
-          (paginate request 1 (or per-page 100)))))))
+(defn request
+  "Return the HTTP request for `route`."
+  [client route & [opts]]
+  (if (keyword? route)
+    (let [ex-data {:client client :route route :opts opts}]
+      (if-let [router (:router client)]
+        (or (routes/request-for router client route opts)
+            (throw (ex-info "Can't resolve route." ex-data)))
+        (throw (ex-info "No routes defined for client." ex-data))))
+    (merge (to-request route) client opts)))
 
-(def client
-  #+clj
-  (->  #'clj-http/request
-       (wrap-edn-body))
-  #+cljs
-  (->  cljs-http/request
-       (wrap-edn-body)))
+(defn send-method
+  "Send the HTTP `request` as `verb` via `client`."
+  [client verb req & [opts]]
+  (->> (assoc (request client req opts)
+         :method verb
+         :request-method verb)
+       (send-request client)))
 
-(defn http
-  "Make a HTTP request and return the response."
-  [request]
-  #+clj
-  (->> (to-request request)
-       (merge {:throw-exceptions false})
-       (client))
-  #+cljs
-  (throw (ex-info "Not implemented in JavaScript." {})))
+(defmacro defroutes
+  "Define routes and a client."
+  [name routes & opts]
+  `(do (routes.core/defroutes ~name ~routes ~@opts)
+       (defn ~'new-client [& [~'config]]
+         (request.core/new-client
+          (merge {:router ~name} ~'config)))))
 
-(defn http!
-  "Make a HTTP request and return the response."
-  [request]
-  #+clj
-  (->> (to-request request)
-       (merge {:throw-exceptions true})
-       (client))
-  #+cljs
-  (throw (ex-info "Not implemented in JavaScript." {})))
+;; HTTP methods
 
-(defn http<
-  "Make a HTTP request and return a core.async channel."
-  [request]
-  #+clj
-  (let [channel (chan)
-        request (merge {:throw-exceptions false} (to-request request))]
-    (go (try+ (>! channel (client request))
-              (finally (close! channel))))
-    channel)
-  #+cljs
-  (client (to-request request)))
+(defn delete
+  "Send the HTTP DELETE `request` via `client`."
+  [client request & [opts]]
+  (send-method client :delete request opts))
 
-(defmacro http<!
-  "Make a HTTP request and return a core.async channel."
-  [request]
-  `(let [channel# (request.core/http< ~request)]
-     #+clj (clojure.core.async/<! channel#)
-     #+cljs (cljs.core.async/<! channel#)))
+(defn get
+  "Send the HTTP GET `request` via `client`."
+  [client request & [opts]]
+  (send-method client :get request opts))
+
+(defn head
+  "Send the HTTP HEAD `request` via `client`."
+  [client request & [opts]]
+  (send-method client :head request opts))
+
+(defn post
+  "Send the HTTP POST `request` via `client`."
+  [client request & [opts]]
+  (send-method client :post request opts))
+
+(defn put
+  "Send the HTTP PUT `request` via `client`."
+  [client request & [opts]]
+  (send-method client :put request opts))
 
 #+clj
 (extend-protocol IRequest
