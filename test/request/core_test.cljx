@@ -91,5 +91,3 @@
       (is (= (:status response) 200))
       (is (= (:body response) {:a 1 :b 2}))
       (is (= (:headers response) {"content-type" "application/edn"})))))
-
-(clojure.pprint/pprint (http/request client :continents {:query-params {:query "Europe"}}))
