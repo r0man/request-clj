@@ -62,7 +62,9 @@
   `(do (routes.core/defroutes ~name ~routes ~@opts)
        (defn ~'new-client [& [~'config]]
          (request.core/new-client
-          (merge {:router ~name} ~'config)))))
+          (merge {:router ~name }
+                 (hash-map ~@opts)
+                 ~'config)))))
 
 ;; HTTP methods
 

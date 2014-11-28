@@ -27,11 +27,13 @@
   :server-name "example.com"
   :server-port 80)
 
-(def client
-  (new-client
-   {:scheme :http
-    :server-name "example.com"
-    :server-port 80}))
+(def client (new-client))
+
+(deftest test-client
+  (is (map? (:router client)))
+  (is (= (:scheme client) :http))
+  (is (= (:server-name client) "example.com"))
+  (is (= (:server-port client) 80)))
 
 (deftest test-to-request
   (is (= {:url "http://api.burningswell.com/continents"}
