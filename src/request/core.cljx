@@ -13,7 +13,7 @@
 (defrecord Client [backend pool router])
 
 (defprotocol IRequest
-  (to-request [x] "Convert `x` into an HTTP request".))
+  (to-request [x] "Convert `x` into an HTTP request"))
 
 (defn- check-request [request]
   (if-not (or (:uri request) (:url request))
