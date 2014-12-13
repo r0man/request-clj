@@ -5,10 +5,10 @@
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
   :dependencies [[clj-http "1.0.1"]
-                 [cljs-http "0.1.21"]
+                 [cljs-http "0.1.22"]
                  [routes-clj "0.1.3"]
                  [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2371" :scope "provided"]]
+                 [org.clojure/clojurescript "0.0-2411" :scope "provided"]]
   :aliases {"ci" ["do" ["difftest"] ["lint"]]
             "lint" ["do"  ["eastwood"]]
             "test-ancient" ["test"]}
