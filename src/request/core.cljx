@@ -68,6 +68,11 @@
 
 ;; HTTP methods
 
+(defn connect
+  "Send the HTTP CONNECT `request` via `client`."
+  [client request & [opts]]
+  (send-method client :connect request opts))
+
 (defn delete
   "Send the HTTP DELETE `request` via `client`."
   [client request & [opts]]
@@ -83,6 +88,16 @@
   [client request & [opts]]
   (send-method client :head request opts))
 
+(defn options
+  "Send the HTTP OPTIONS `request` via `client`."
+  [client request & [opts]]
+  (send-method client :options request opts))
+
+(defn patch
+  "Send the HTTP PATCH `request` via `client`."
+  [client request & [opts]]
+  (send-method client :patch request opts))
+
 (defn post
   "Send the HTTP POST `request` via `client`."
   [client request & [opts]]
@@ -92,6 +107,11 @@
   "Send the HTTP PUT `request` via `client`."
   [client request & [opts]]
   (send-method client :put request opts))
+
+(defn trace
+  "Send the HTTP TRACE `request` via `client`."
+  [client request & [opts]]
+  (send-method client :trace request opts))
 
 #+clj
 (extend-protocol IRequest
