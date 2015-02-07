@@ -23,9 +23,9 @@
   #+BEGIN_SRC clojure :exports code :results silent
     (defroutes my-routes
       ["/countries" :countries]
-      ["/countries/:id-:name" :country]
+      ["/countries/:id" :country]
       ["/spots" :spots]
-      ["/spots/:id-:name" :spot])
+      ["/spots/:id" :spot])
   #+END_SRC
 
   Make an HTTP client.
