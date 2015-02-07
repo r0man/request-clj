@@ -31,87 +31,85 @@
        config)
       (map->Client)))
 
-(defn send-request
+(defn request
   "Send the HTTP `request` via `client`."
   [client request]
   (let [request (to-request request)]
     ((:backend client) (merge (into {} client) request))))
 
-(defn request
+(defn request-for
   "Return the HTTP request for `route`."
-  [client route & [opts]]
+  [client route & args]
   (if (keyword? route)
-    (let [ex-data {:client client :route route :opts opts}]
-      (if-let [router (:router client)]
-        (or (routes/request-for router client route opts)
-            (throw (ex-info "Can't resolve route." ex-data)))
-        (throw (ex-info "No routes defined for client." ex-data))))
-    (merge (to-request route) client opts)))
+    (if-let [router (:router client)]
+      (or (apply routes/request-for router client route args)
+          (throw (ex-info "Can't resolve route." {:route route})))
+      (throw (ex-info "No routes defined for client." {:route route})))
+    (merge (to-request route) client (first args))))
 
-(defn send-method
+(defn- send-method
   "Send the HTTP `request` as `verb` via `client`."
-  [client verb req & [opts]]
-  (->> (assoc (request client req opts)
-         :method verb
-         :request-method verb)
-       (send-request client)))
+  [client verb & args]
+  (->> (assoc (apply request-for client args)
+              :method verb
+              :request-method verb)
+       (request client)))
 
 (defmacro defroutes
   "Define routes and a client."
-  [name routes & opts]
-  `(do (routes.core/defroutes ~name ~routes ~@opts)
+  [name & routes]
+  `(do (routes.core/defroutes ~name ~@routes)
        (defn ~'new-client [& [~'config]]
+         (assert (:server-name ~'config) "No server name given!")
          (request.core/new-client
-          (merge {:router ~name }
-                 (hash-map ~@opts)
-                 ~'config)))))
+          (assoc ~'config :router ~name)))))
 
 ;; HTTP methods
 
 (defn connect
   "Send the HTTP CONNECT `request` via `client`."
-  [client request & [opts]]
-  (send-method client :connect request opts))
+  [client  & args]
+  (apply send-method client :connect args))
 
 (defn delete
   "Send the HTTP DELETE `request` via `client`."
-  [client request & [opts]]
-  (send-method client :delete request opts))
+  [client  & args]
+  (apply send-method client :delete args))
 
 (defn get
   "Send the HTTP GET `request` via `client`."
-  [client request & [opts]]
-  (send-method client :get request opts))
+  [client  & args]
+  (apply send-method client :get args))
 
 (defn head
   "Send the HTTP HEAD `request` via `client`."
-  [client request & [opts]]
-  (send-method client :head request opts))
+  [client  & args]
+  (apply send-method client :head args))
 
 (defn options
   "Send the HTTP OPTIONS `request` via `client`."
-  [client request & [opts]]
-  (send-method client :options request opts))
+  [client  & args]
+  (apply send-method client :options args))
 
 (defn patch
   "Send the HTTP PATCH `request` via `client`."
-  [client request & [opts]]
-  (send-method client :patch request opts))
+  [client  & args]
+  (apply send-method client :patch args))
 
 (defn post
   "Send the HTTP POST `request` via `client`."
-  [client request & [opts]]
-  (send-method client :post request opts))
+  [client  & args]
+  (apply send-method client :post args))
 
 (defn put
   "Send the HTTP PUT `request` via `client`."
-  [client request & [opts]]
-  (send-method client :put request opts))
+  [client  & args]
+  (apply send-method client :put args))
 
 (defn trace
   "Send the HTTP TRACE `request` via `client`."
-  [client request & [opts]]
-  (send-method client :trace request opts))
+  [client  & args]
+  (apply send-method client :trace args))
 
 #+clj
 (extend-protocol IRequest
