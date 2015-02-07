@@ -6,7 +6,7 @@
   :min-lein-version "2.0.0"
   :dependencies [[clj-http "1.0.1"]
                  [cljs-http "0.1.25"]
-                 [routes-clj "0.1.5"]
+                 [routes-clj "0.1.6"]
                  [org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-2760" :scope "provided"]]
   :aliases {"ci" ["do" ["cleantest"] ["lint"]]
