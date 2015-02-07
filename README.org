@@ -1,0 +1,50 @@
+#+title: request-clj
+#+author: roman
+#+LANGUAGE: en
+
+[[https://travis-ci.org/r0man/request-clj][https://travis-ci.org/r0man/request-clj.png]]
+[[http://jarkeeper.com/r0man/request-clj][http://jarkeeper.com/r0man/request-clj/status.png]]
+
+* Installation
+
+  [[https://clojars.org/request-clj][https://clojars.org/request-clj/latest-version.svg]]
+
+* Usage
+
+  Require the library.
+
+  #+BEGIN_SRC clojure :exports code :results silent
+    (require '[request.core :refer [defroutes] :as http])
+  #+END_SRC
+
+  Define routes by passing vectors of route pattern and route names do
+  =defroutes=.
+
+  #+BEGIN_SRC clojure :exports code :results silent
+    (defroutes my-routes
+      ["/countries" :countries]
+      ["/countries/:id-:name" :country]
+      ["/spots" :spots]
+      ["/spots/:id-:name" :spot])
+  #+END_SRC
+
+  Make an HTTP client.
+
+  #+BEGIN_SRC clojure :exports code :results silent
+    (def client
+      (http/new-client
+       {:scheme :https
+        :server-name "example.com"}))
+  #+END_SRC
+
+  Make an HTTP using a route.
+
+  #+BEGIN_SRC clojure :exports both :results verbatim
+    (http/get client :country {:id 1 :name "Spain"})
+  #+END_SRC
+
+* License
+
+  Copyright © 2012-2015 r0man
+
+  Distributed under the Eclipse Public License, the same as Clojure.
