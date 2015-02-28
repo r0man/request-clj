@@ -10,8 +10,8 @@
   #+cljs (:import goog.Uri))
 
 (def server
-  {:scheme :http
-   :server-name "example.com"
+  {:scheme :https
+   :server-name "other.com"
    :server-port 80})
 
 (def spain
@@ -26,15 +26,25 @@
   ["/countries/:id-:name/spots" :spots-in-country]
   ["/countries/:id-:name/spots/:id-:name" :spot-in-country]
   ["/spots" :spots]
-  ["/spots/:id-:name" :spot])
+  ["/spots/:id-:name" :spot]
+  {:scheme :http
+   :server-name "example.com"
+   :server-port 80})
 
-(def client (new-client server))
+(def client (new-client))
 
 (deftest test-client
   (is (map? (:router client)))
   (is (= (:scheme client) :http))
   (is (= (:server-name client) "example.com"))
   (is (= (:server-port client) 80)))
+
+(deftest test-client
+  (let [client (new-client server)]
+    (is (map? (:router client)))
+    (is (= (:scheme client) :https))
+    (is (= (:server-name client) "other.com"))
+    (is (= (:server-port client) 80))))
 
 (deftest test-to-request
   (is (= {:url "http://api.burningswell.com/countries"}

@@ -58,11 +58,14 @@
 (defmacro defroutes
   "Define routes and a client."
   [name & routes]
-  `(do (routes.core/defroutes ~name ~@routes)
+  `(do (routes.core/defroutes ~name
+         ~@(filter vector? routes))
        (defn ~'new-client [& [~'config]]
-         (assert (:server-name ~'config) "No server name given!")
-         (request.core/new-client
-          (assoc ~'config :router ~name)))))
+         (let [config# (-> ~(apply merge (filter map? routes))
+                           (merge ~'config)
+                           (assoc :router ~name))]
+           (assert (:server-name config#) "No server name given!")
+           (request.core/new-client config#)))))
 
 ;; HTTP methods
 
