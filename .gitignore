@@ -16,3 +16,4 @@ pom.xml
 /.lein-repl-history
 /.repl
 /.nrepl-port
+/output/
