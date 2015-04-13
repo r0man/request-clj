@@ -5,7 +5,8 @@
             #+clj [request.core :refer [defroutes]]
             #+clj [clojure.test :refer :all]
             #+clj [clj-http.core :as clj-http]
-            #+cljs [cemerick.cljs.test :as t])
+            #+cljs [cemerick.cljs.test :as t]
+            #+cljs [cljs-http.core :as cljs-http])
   #+clj (:import [java.net URL URI])
   #+cljs (:import goog.Uri))
 
@@ -52,7 +53,11 @@
   (is (= (http/to-request "http://api.burningswell.com/countries")
          #+clj (http/to-request (URL. "http://api.burningswell.com/countries"))
          #+clj (http/to-request (URI. "http://api.burningswell.com/countries"))
-         #+cljs (http/to-request (Uri. "http://api.burningswell.com/countries")))))
+         #+cljs (http/to-request (Uri. "http://api.burningswell.com/countries"))))
+  (is (= (http/to-request "http://example.com")
+         {:scheme :http
+          :server-name "example.com"
+          :server-port 80})))
 
 (deftest test-request-for
   (let [request (http/request-for client :countries)]
@@ -93,7 +98,7 @@
            request))))
 
 #+clj
-(deftest test-get
+(deftest test-get-countries
   (with-redefs
     [clj-http/request
      (fn [request]
@@ -111,7 +116,10 @@
     (let [response (http/get client :countries {:query-params {:query "Europe"}})]
       (is (= (:status response) 200))
       (is (= (:body response) {:a 1 :b 2}))
-      (is (= (:headers response) {"content-type" "application/edn"}))))
+      (is (= (:headers response) {"content-type" "application/edn"})))))
+
+#+clj
+(deftest test-get-country
   (with-redefs
     [clj-http/request
      (fn [request]
@@ -127,6 +135,27 @@
         :body (java.io.ByteArrayInputStream. (.getBytes (pr-str {:a 1 :b 2})))
         :headers {"content-type" "application/edn"}})]
     (let [response (http/get client :country spain {:query-params {:sort "asc"}})]
+      (is (= (:status response) 200))
+      (is (= (:body response) {:a 1 :b 2}))
+      (is (= (:headers response) {"content-type" "application/edn"})))))
+
+#+clj
+(deftest test-get-url
+  (with-redefs
+    [clj-http/request
+     (fn [request]
+       (is (= false (:throw-exceptions request)))
+       (is (= :get (:request-method request)))
+       (is (= :http (:scheme request)))
+       (is (= "example.com" (:server-name request)))
+       (is (= 80 (:server-port request)))
+       (is (= "/" (:uri request)))
+       (is (= "sort=asc" (:query-string request)))
+       (is (= :auto (:as request)))
+       {:status 200
+        :body (java.io.ByteArrayInputStream. (.getBytes (pr-str {:a 1 :b 2})))
+        :headers {"content-type" "application/edn"}})]
+    (let [response (http/get client "http://example.com/" {:query-params {:sort "asc"}})]
       (is (= (:status response) 200))
       (is (= (:body response) {:a 1 :b 2}))
       (is (= (:headers response) {"content-type" "application/edn"})))))

@@ -16,7 +16,7 @@
   (to-request [x] "Convert `x` into an HTTP request"))
 
 (defn- check-request [request]
-  (if-not (or (:uri request) (:url request))
+  (if-not (or (:url request) (:server-name request) )
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
     request))
 
