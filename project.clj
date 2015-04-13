@@ -4,11 +4,11 @@
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
-  :dependencies [[clj-http "1.0.1"]
-                 [cljs-http "0.1.26"]
+  :dependencies [[clj-http "1.1.0"]
+                 [cljs-http "0.1.30"]
                  [routes-clj "0.1.8"]
                  [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-2913" :scope "provided"]]
+                 [org.clojure/clojurescript "0.0-3196" :scope "provided"]]
   :aliases {"ci" ["do" ["cleantest"] ["lint"]]
             "cleantest" ["do" "clean," "cljx" "once," "test," "cljsbuild" "test"]
             "deploy" ["do" "clean," "cljx" "once," "deploy" "clojars"]
@@ -36,9 +36,9 @@
                               "phantom" ["phantomjs" :runner "target/testable.js"]}}
   :deploy-repositories [["releases" :clojars]]
   :prep-tasks [["cljx" "once"]]
-  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.1.6-SNAPSHOT"]]
+  :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.0"]]
                    :plugins [[com.cemerick/clojurescript.test "0.3.3"]
-                             [com.keminglabs/cljx "0.5.0"]
+                             [com.keminglabs/cljx "0.6.0"]
                              [jonase/eastwood "0.2.1"]
                              [lein-cljsbuild "1.0.5"]
                              [lein-difftest "2.0.0"]]
