@@ -159,3 +159,9 @@
       (is (= (:status response) 200))
       (is (= (:body response) {:a 1 :b 2}))
       (is (= (:headers response) {"content-type" "application/edn"})))))
+
+(deftest test-wrap-auth-token
+  (is (= ((http/wrap-auth-token identity "secret") {})
+         {:headers {"authorization" "Token secret"}}))
+  (is (= ((http/wrap-auth-token identity) {:auth-token "secret"})
+         {:headers {"authorization" "Token secret"}})))

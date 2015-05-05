@@ -20,12 +20,25 @@
     (throw (ex-info "HTTP request is missing :uri or :url." {:request request}))
     request))
 
+(defn wrap-auth-token
+  "Middleware converting the :token option into an Authorization header."
+  [client & [token]]
+  (fn [req]
+    (if-let [auth-token (or (:auth-token req) token)]
+      (client (-> req (dissoc :auth-token)
+                  (assoc-in [:headers "authorization"]
+                            (str "Token " auth-token))))
+      (client req))))
+
 (defn new-client
   "Return a new HTTP client using `config`."
   [& [config]]
   (-> (merge
        {:as :auto
-        :backend #+clj #'http/request #+cljs http/request
+        :backend
+        (-> #+clj #'http/request
+            #+cljs http/request
+            (wrap-auth-token (:auth-token config)))
         :coerce :auto
         :throw-exceptions false}
        config)
