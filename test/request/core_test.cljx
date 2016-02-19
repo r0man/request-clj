@@ -35,12 +35,6 @@
 (def client (new-client))
 
 (deftest test-client
-  (is (map? (:router client)))
-  (is (= (:scheme client) :http))
-  (is (= (:server-name client) "example.com"))
-  (is (= (:server-port client) 80)))
-
-(deftest test-client
   (let [client (new-client server)]
     (is (map? (:router client)))
     (is (= (:scheme client) :https))

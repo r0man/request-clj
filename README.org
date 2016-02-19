@@ -2,8 +2,9 @@
 #+author: roman
 #+LANGUAGE: en
 
-[[https://travis-ci.org/r0man/request-clj][https://travis-ci.org/r0man/request-clj.png]]
-[[http://jarkeeper.com/r0man/request-clj][http://jarkeeper.com/r0man/request-clj/status.png]]
+[[https://travis-ci.org/r0man/request-clj][https://travis-ci.org/r0man/request-clj.svg]]
+[[http://jarkeeper.com/r0man/request-clj][http://jarkeeper.com/r0man/request-clj/status.svg]]
+[[http://jarkeeper.com/r0man/request-clj][http://jarkeeper.com/r0man/request-clj/downloads.svg]]
 
 * Installation
 
@@ -14,7 +15,7 @@
   Require the library.
 
   #+BEGIN_SRC clojure :exports code :results silent
-    (require '[request.core :refer [defroutes] :as http])
+    (require '[request.core :refer [defroutes] :as routes])
   #+END_SRC
 
   Define routes by passing vectors of route pattern and route names do
@@ -32,7 +33,7 @@
 
   #+BEGIN_SRC clojure :exports code :results silent
     (def client
-      (http/new-client
+      (routes/new-client
        {:scheme :https
         :server-name "example.com"}))
   #+END_SRC
@@ -40,7 +41,7 @@
   Make an HTTP using a route.
 
   #+BEGIN_SRC clojure :exports both :results verbatim
-    (http/get client :country {:id 1 :name "Spain"})
+    (routes/get client :country {:id 1 :name "Spain"})
   #+END_SRC
 
 * License

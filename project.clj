@@ -4,16 +4,16 @@
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
-  :dependencies [[clj-http "1.1.1"]
-                 [cljs-http "0.1.30"]
-                 [routes-clj "0.1.9"]
-                 [org.clojure/clojure "1.6.0"]
-                 [org.clojure/clojurescript "0.0-3211" :scope "provided"]]
+  :dependencies [[clj-http "2.1.0"]
+                 [cljs-http "0.1.39"]
+                 [routes-clj "0.1.10"]
+                 [org.clojure/clojure "1.8.0"]
+                 [org.clojure/clojurescript "1.7.228" :scope "provided"]]
   :aliases {"ci" ["do" ["cleantest"] ["lint"]]
             "cleantest" ["do" "clean," "cljx" "once," "test," "cljsbuild" "test"]
             "deploy" ["do" "clean," "cljx" "once," "deploy" "clojars"]
             "lint" ["do"  ["eastwood"]]
-            "test-ancient" ["test"]}
+            "test-ancient" ["ci"]}
   :cljx {:builds [{:source-paths ["src"]
                    :output-path "target/classes"
                    :rules :clj}
@@ -39,8 +39,8 @@
   :profiles {:dev {:dependencies [[com.cemerick/piggieback "0.2.1"]]
                    :plugins [[com.cemerick/clojurescript.test "0.3.3"]
                              [com.keminglabs/cljx "0.6.0"]
-                             [jonase/eastwood "0.2.1"]
-                             [lein-cljsbuild "1.0.5"]
+                             [jonase/eastwood "0.2.3"]
+                             [lein-cljsbuild "1.1.2"]
                              [lein-difftest "2.0.0"]]
                    :repl-options {:nrepl-middleware [cljx.repl-middleware/wrap-cljx]}
                    :test-paths ["target/test-classes"]}})
