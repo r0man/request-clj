@@ -3,12 +3,12 @@
   (:require [clojure.string :refer [blank? replace]]
             [no.en.core :refer [format-query-params format-url parse-url]]
             [routes.core :as routes]
-            #+clj [clojure.pprint :refer [pprint]]
-            #+clj [clojure.edn :as edn]
-            #+clj [clojure.core.async :refer [<! >! chan close! map< go put!]]
-            #+clj [clj-http.client :as http]
-            #+cljs [cljs-http.client :as http])
-  #+cljs (:import goog.Uri))
+            #?(:clj [clojure.pprint :refer [pprint]])
+            #?(:clj [clojure.edn :as edn])
+            #?(:clj [clojure.core.async :refer [<! >! chan close! map< go put!]])
+            #?(:clj [clj-http.client :as http])
+            #?(:cljs [cljs-http.client :as http]))
+  #?(:cljs (:import goog.Uri)))
 
 (defrecord Client [backend pool router])
 
@@ -36,8 +36,7 @@
   (-> (merge
        {:as :auto
         :backend
-        (-> #+clj #'http/request
-            #+cljs http/request
+        (-> #?(:clj #'http/request :cljs http/request)
             (wrap-auth-token (:auth-token config)))
         :coerce :auto
         :throw-exceptions false}
@@ -84,78 +83,78 @@
 
 (defn connect
   "Send the HTTP CONNECT `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :connect args))
 
 (defn delete
   "Send the HTTP DELETE `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :delete args))
 
 (defn get
   "Send the HTTP GET `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :get args))
 
 (defn head
   "Send the HTTP HEAD `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :head args))
 
 (defn options
   "Send the HTTP OPTIONS `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :options args))
 
 (defn patch
   "Send the HTTP PATCH `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :patch args))
 
 (defn post
   "Send the HTTP POST `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :post args))
 
 (defn put
   "Send the HTTP PUT `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :put args))
 
 (defn trace
   "Send the HTTP TRACE `request` via `client`."
-  [client  & args]
+  [client & args]
   (apply send-method client :trace args))
 
-#+clj
-(extend-protocol IRequest
-  clojure.lang.PersistentArrayMap
-  (to-request [m]
-    (check-request m))
-  clojure.lang.PersistentHashMap
-  (to-request [m]
-    (check-request m))
-  String
-  (to-request [s]
-    (check-request (parse-url s)))
-  java.net.URI
-  (to-request [uri]
-    (to-request (str uri)))
-  java.net.URL
-  (to-request [url]
-    (to-request (str url))))
+#?(:clj
+   (extend-protocol IRequest
+     clojure.lang.PersistentArrayMap
+     (to-request [m]
+       (check-request m))
+     clojure.lang.PersistentHashMap
+     (to-request [m]
+       (check-request m))
+     String
+     (to-request [s]
+       (check-request (parse-url s)))
+     java.net.URI
+     (to-request [uri]
+       (to-request (str uri)))
+     java.net.URL
+     (to-request [url]
+       (to-request (str url)))))
 
-#+cljs
-(extend-protocol IRequest
-  PersistentArrayMap
-  (to-request [m]
-    (check-request m))
-  PersistentHashMap
-  (to-request [m]
-    (check-request m))
-  string
-  (to-request [s]
-    (check-request (parse-url s)))
-  goog.Uri
-  (to-request [uri]
-    (to-request (str uri))))
+#?(:cljs
+   (extend-protocol IRequest
+     PersistentArrayMap
+     (to-request [m]
+       (check-request m))
+     PersistentHashMap
+     (to-request [m]
+       (check-request m))
+     string
+     (to-request [s]
+       (check-request (parse-url s)))
+     goog.Uri
+     (to-request [uri]
+       (to-request (str uri)))))
