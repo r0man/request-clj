@@ -17,3 +17,4 @@ pom.xml
 /.repl
 /.nrepl-port
 /output/
+.cljs_node_repl
