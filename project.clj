@@ -1,14 +1,17 @@
-(defproject request-clj "0.2.21-SNAPSHOT"
+(defproject request-clj "0.3.0-SNAPSHOT"
   :description "A HTTP library for Clojure & ClojureScript."
   :url "https://github.com/r0man/request-clj"
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
-  :dependencies [[clj-http "2.1.0"]
-                 [cljs-http "0.1.39"]
-                 [routes-clj "0.1.10"]
+  :dependencies [[clj-http "3.1.0"]
+                 [cheshire "5.6.3"]
+                 [cljs-http "0.1.41"]
+                 [com.cognitect/transit-clj "0.8.288"]
+                 [http-kit "2.2.0"]
                  [org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.93" :scope "provided"]]
+                 [org.clojure/clojurescript "1.9.93" :scope "provided"]
+                 [routes-clj "0.1.10"]]
   :aliases
   {"ci" ["do"
          ["clean"]

@@ -4,6 +4,8 @@
             #?(:clj [clojure.test :refer :all])
             #?(:clj [clj-http.core :as clj-http])
             #?(:cljs [cljs-http.core :as cljs-http])
+            #?(:clj [request.backend.clj-http])
+            #?(:clj [request.backend.httpkit])
             [request.core :as http #?(:clj :refer :cljs :refer-macros) [defroutes]])
   #?(:clj (:import [java.net URL URI]))
   #?(:cljs (:import goog.Uri)))
@@ -157,3 +159,25 @@
          {:headers {"authorization" "Token secret"}}))
   (is (= ((http/wrap-auth-token identity) {:auth-token "secret"})
          {:headers {"authorization" "Token secret"}})))
+
+#?(:clj
+   (deftest test-get
+     (doseq [client (map #(http/new-client {:backend %}) [:clj-http :httpkit])]
+       (let [url "http://httpbin.org/get"
+             response (http/get client url)]
+         (is (= (:status response) 200))
+         (is (map? (:body response)))
+         (is (= (-> response :body :url) url))))))
+
+#?(:clj
+   (deftest test-post-json
+     (doseq [client (map #(http/new-client {:backend %}) [:clj-http :httpkit])]
+       (let [url "http://httpbin.org/post"
+             response (http/post
+                       client url
+                       {:content-type "application/json"
+                        :form-params {:a 1}})]
+         (is (= (:status response) 200))
+         (is (map? (:body response)))
+         (is (= (-> response :body :url) url))
+         (is (= (-> response :body :data) "{\"a\":1}"))))))

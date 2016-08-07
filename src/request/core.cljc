@@ -1,19 +1,13 @@
 (ns request.core
-  (:refer-clojure :exclude [get replace])
-  (:require [clojure.string :refer [blank? replace]]
-            [no.en.core :refer [format-query-params format-url parse-url]]
-            [routes.core :as routes]
-            #?(:clj [clojure.pprint :refer [pprint]])
-            #?(:clj [clojure.edn :as edn])
-            #?(:clj [clojure.core.async :refer [<! >! chan close! map< go put!]])
-            #?(:clj [clj-http.client :as http])
-            #?(:cljs [cljs-http.client :as http]))
+  (:refer-clojure :exclude [get])
+  (:require [no.en.core :refer [parse-url]]
+            [routes.core :as routes])
   #?(:cljs (:import goog.Uri)))
 
 (defrecord Client [backend pool router])
 
 (defprotocol IRequest
-  (to-request [x] "Convert `x` into an HTTP request"))
+  (to-request [x] "Convert `x` into a HTTP request map."))
 
 (defn- check-request [request]
   (if-not (or (:url request) (:server-name request) )
@@ -21,7 +15,7 @@
     request))
 
 (defn wrap-auth-token
-  "Middleware converting the :token option into an Authorization header."
+  "Middleware converting the :auth-token option into an Authorization header."
   [client & [token]]
   (fn [req]
     (if-let [auth-token (or (:auth-token req) token)]
@@ -35,19 +29,10 @@
   [& [config]]
   (-> (merge
        {:as :auto
-        :backend
-        (-> #?(:clj #'http/request :cljs http/request)
-            (wrap-auth-token (:auth-token config)))
-        :coerce :auto
+        :backend #?(:clj :clj-http :cljs :cljs-http)
         :throw-exceptions false}
        config)
       (map->Client)))
-
-(defn request
-  "Send the HTTP `request` via `client`."
-  [client request]
-  (let [request (to-request request)]
-    ((:backend client) (merge (into {} client) request))))
 
 (defn request-for
   "Return the HTTP request for `route`."
@@ -58,6 +43,15 @@
           (throw (ex-info "Can't resolve route." {:route route})))
       (throw (ex-info "No routes defined for client." {:route route})))
     (merge (to-request route) client (first args))))
+
+(defmulti request
+  "Send the HTTP `request` via `client`."
+  (fn [client request] (:backend client)))
+
+(defmethod request :default [client request]
+  (throw (ex-info (str "Can't send HTTP request. Backend \""
+                       (-> client :backend name) "\" not registered.")
+                  {:request request})))
 
 (defn- send-method
   "Send the HTTP `request` as `verb` via `client`."
