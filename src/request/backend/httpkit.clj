@@ -4,6 +4,7 @@
             [no.en.core :refer [format-url]]
             [org.httpkit.client :as http]
             [request.core :refer [request]]
+            [request.middleware :as middleware]
             [request.util :as util]))
 
 (defn coerce-request
@@ -14,7 +15,8 @@
            clj-http/wrap-form-params
            clj-http/wrap-method
            clj-http/wrap-accept-encoding
-           clj-http/wrap-accept)
+           clj-http/wrap-accept
+           middleware/wrap-auth-token)
        (util/normalize-headers request))
       (dissoc :query-params :query-string)
       (assoc :as :stream
