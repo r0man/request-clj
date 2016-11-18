@@ -2,3 +2,5 @@ language: clojure
 script: lein ci
 jdk:
   - oraclejdk8
+before_install:
+  - yes | LEIN_ROOT=1 sudo lein upgrade 2.6.1
