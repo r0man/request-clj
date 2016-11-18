@@ -4,13 +4,13 @@
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :min-lein-version "2.0.0"
-  :dependencies [[clj-http "3.1.0"]
+  :dependencies [[clj-http "3.4.1"]
                  [cheshire "5.6.3"]
-                 [cljs-http "0.1.41"]
-                 [com.cognitect/transit-clj "0.8.288"]
+                 [cljs-http "0.1.42"]
+                 [com.cognitect/transit-clj "0.8.293"]
                  [http-kit "2.2.0"]
                  [org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.93" :scope "provided"]
+                 [org.clojure/clojurescript "1.9.293" :scope "provided"]
                  [routes-clj "0.1.10"]]
   :aliases
   {"ci" ["do"
@@ -56,11 +56,11 @@
      :source-paths ["src" "test"]}]}
   :deploy-repositories [["releases" :clojars]]
   :profiles {:dev {:plugins [[jonase/eastwood "0.2.3"]
-                             [lein-cljsbuild "1.1.3"]
+                             [lein-cljsbuild "1.1.4"]
                              [lein-doo "0.1.7"]
                              [lein-difftest "2.0.0"]]
                    :test-paths ["target/test-classes"]}
              :repl {:dependencies [[com.cemerick/piggieback "0.2.1"]
-                                   [reloaded.repl "0.2.2"]]
+                                   [reloaded.repl "0.2.3"]]
                     :init-ns user
                     :nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}})
