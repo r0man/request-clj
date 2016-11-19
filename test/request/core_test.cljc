@@ -1,5 +1,7 @@
 (ns request.core-test
-  (:require [clojure.test :refer [are deftest is]]
+  (:require #?(:clj [clojure.test :refer :all]
+               :cljs [cljs.test :refer-macros [are deftest is]])
+            #?(:clj [clojure.test :refer :all])
             #?(:clj [clj-http.core :as clj-http])
             #?(:cljs [cljs-http.core :as cljs-http])
             #?(:clj [request.backend.clj-http])

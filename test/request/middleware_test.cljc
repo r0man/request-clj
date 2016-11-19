@@ -1,5 +1,7 @@
 (ns request.middleware-test
-  (:require [clojure.test :refer [are deftest is]]
+  (:require #?(:clj [clojure.test :refer :all]
+               :cljs [cljs.test :refer-macros [are deftest is]])
+            #?(:clj [clojure.test :refer :all])
             [request.middleware :as m]))
 
 (deftest test-wrap-auth-token

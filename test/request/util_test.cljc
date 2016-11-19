@@ -1,5 +1,6 @@
 (ns request.util-test
-  (:require [clojure.test :refer [are deftest is]]
+  (:require #?(:clj [clojure.test :refer :all]
+               :cljs [cljs.test :refer-macros [are deftest is]])
             [request.util :as util]))
 
 (deftest test-normalize-headers
