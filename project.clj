@@ -7,10 +7,10 @@
   :dependencies [[clj-http "3.4.1"]
                  [cheshire "5.6.3"]
                  [cljs-http "0.1.42"]
-                 [com.cognitect/transit-clj "0.8.295"]
+                 [com.cognitect/transit-clj "0.8.297"]
                  [http-kit "2.2.0"]
                  [org.clojure/clojure "1.9.0-alpha14"]
-                 [routes-clj "0.1.11"]]
+                 [routes-clj "0.1.12"]]
   :aliases
   {"ci" ["do"
          ["clean"]
